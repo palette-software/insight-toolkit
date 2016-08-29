@@ -48,3 +48,6 @@ deploy:
   script: deploy.sh
   on:
     branch: travis-test
+
+notifications:
+  email: false
