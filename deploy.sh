@@ -3,11 +3,13 @@
 echo "DEPLOY_USER=$DEPLOY_USER"
 echo "DEPLOY_HOST=$DEPLOY_HOST"
 
-  export SSHPASS=$DEPLOY_PASS
-  sshpass -e scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r rpm-build/_build/* $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
+ls -latr ~/.ssh/known_hosts
 
-  # Update the RPM repository
-  export DEPLOY_CMD="createrepo ${DEPLOY_PATH}/"
-  sshpass -e ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST $DEPLOY_CMD
+export SSHPASS=$DEPLOY_PASS
+sshpass -e scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r rpm-build/_build/* $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
+
+# Update the RPM repository
+export DEPLOY_CMD="createrepo ${DEPLOY_PATH}/"
+sshpass -e ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST $DEPLOY_CMD
 
 
