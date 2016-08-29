@@ -37,9 +37,6 @@ before_deploy:
   - echo "BUILDING VERSION:$VERSION"
 
   # build the rpm
-  - echo $(pwd)
-  - echo $VERSION
-  - echo $TRAVIS_BUILD_NUMBER
   - export SSHPASS=$DEPLOY_PASS
   - rpmbuild -bb --buildroot $(pwd) --define "version $VERSION" --define "buildrelease $TRAVIS_BUILD_NUMBER" --define "_rpmdir $(pwd)/_build" ../palette-insight-toolkit.spec
   - cd ..
@@ -49,7 +46,7 @@ deploy:
   script: "./deploy.sh"
   skip_cleanup: true
   on:
-    branch: travis-test
+    branch: master
 
 notifications:
   email: false
