@@ -32,7 +32,7 @@ before_deploy:
   - mkdir -p opt/insight-toolkit
 
   # Copy the binary
-  - cp -v scripts/* opt/insight-toolkit
+  - cp -v ../scripts/* opt/insight-toolkit
   - echo "BUILDING VERSION:$VERSION"
 
   # build the rpm
