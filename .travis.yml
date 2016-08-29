@@ -21,6 +21,9 @@ before_script:
   - echo "==== Setting ${BUILD_TAG} as version ===="
   - echo ${BUILD_TAG} > lib/assets/VERSION
 
+script:
+  - echo "Nothing to do. It just works :)"
+
 before_deploy:
   - export VERSION=$(echo $TRAVIS_TAG | grep -o '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*')
   - mkdir -p rpm-build
