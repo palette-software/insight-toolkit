@@ -27,6 +27,7 @@ before_deploy:
   - export VERSION=$(echo $TRAVIS_TAG | grep -o '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*')
   - mkdir -p rpm-build
   - cd rpm-build
+  - mkdir -p _build
 
   # Create directories
   - mkdir -p opt/insight-toolkit
@@ -36,6 +37,9 @@ before_deploy:
   - echo "BUILDING VERSION:$VERSION"
 
   # build the rpm
+  - echo $(pwd)
+  - echo $VERSION
+  - echo $TRAVIS_BUILD_NUMBER
   - rpmbuild -bb --buildroot $(pwd) --define "version $VERSION" --define "buildrelease $TRAVIS_BUILD_NUMBER" --define "_rpmdir $(pwd)/_build" ../palette-insight-toolkit.spec
   - cd ..
 
@@ -43,4 +47,4 @@ deploy:
   provider: script
   script: deploy.sh
   on:
-    branch: master
+    branch: travis-test
