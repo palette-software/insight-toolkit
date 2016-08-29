@@ -1,9 +1,3 @@
-language: go
-sudo: required
-
-go:
-  - 1.6
-
 env:
   global:
       - DEPLOY_HOST=rpm.palette-software.com
