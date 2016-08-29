@@ -1,0 +1,49 @@
+env:
+  global:
+      - DEPLOY_HOST=rpm.palette-software.com
+      - DEPLOY_PATH=/var/palette-rpm-repo
+      - DEPLOY_USER=palette-rpm
+
+      # travis encrypt DEPLOY_PASSWORD=...
+      - secure: "bpiG25h8I+BgpswIFjvADbHfrZygMFvsge/FhIw4eCbmFFCE1o/02gWJoDmG411IRehjbNjqpTIhulUWHrv43AKWxMUTSMNybfQlZ8v6vp9N8bTI4ShI/DMgK2oHZgKXicZo5eUpreC+y+NhmMgDfcF45bW924ru52WVYueWDpQrlXYmqbFM2Au7mHR0XR2qlf2stFeSs6pGVm/s4QXKXTw0qIV9xjgealCf5Gxt69I3IVdNw7Tqt6NCKbd+hmZI4SWDG5eFYMr6fzNymzjvqoArURlPvkZxNfTeeJn+DL94pjxCJMXV1PXqQWYwg6iPdZoJzoO+jjzUf1egoU3jZvUTVqmCGWGBvR9s9e1e8tVOt6HKZsoXesv8sS1Dbny3SJ1TSB66qFD8qR2qTqenRr3EllInq5KK4mp6yj+YtuXyNxGklDM7sQaIv95LTR9qy5I0sZTJFoJIiEMSZ2R1aO/IVRBCY/3nesKRAByGi1hjhreGArUvWtD+mw13oSs2kFK7P0mWmWv3/XVeWWqODCa4hgsfAmr4evDbGwyPH2XzkIxOXxzLmuNfHAEZvCQ23ciBMpaq9tdNh10ln2zKWR7wPai2KpqNYw/VdG52KjJwvm+aue7p3mdblJzXoPLnx1G0UWG9fh+pun8cvclUFrz1u84GOf4eHeKRpDCDP9I="
+
+# install the RPM package
+addons:
+  apt:
+    packages:
+      - rpm
+      # To deploy the rpms, we need to ssh into places, and we dont want to store keys for now
+      - sshpass
+
+# Put a proper version string into the version file
+before_script:
+  - export BUILD_TAG="$TRAVIS_BRANCH-$(date -u "+%Y-%m-%d").$TRAVIS_BUILD_NUMBER"
+  - echo "==== Setting ${BUILD_TAG} as version ===="
+  - echo ${BUILD_TAG} > lib/assets/VERSION
+
+before_deploy:
+  - export VERSION=$(echo $TRAVIS_TAG | grep -o '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*')
+  - mkdir -p rpm-build
+  - cd rpm-build
+
+  # Create directories
+  - mkdir -p opt/insight-toolkit
+
+  # Copy the binary
+  - cp -v scripts/* opt/insight-toolkit
+  - echo "BUILDING VERSION:$VERSION"
+
+  # build the rpm
+  - rpmbuild -bb --buildroot $(pwd) --define "version $VERSION" --define "buildrelease $TRAVIS_BUILD_NUMBER" --define "_rpmdir $(pwd)/_build" palette-insight-toolkit.spec
+  - cd ..
+
+deploy:
+  # Upload the RPM to the RPM repository
+  # by exportin it to SSHPASS, sshpass wont log the command line and the password
+  - export SSHPASS=$DEPLOY_PASS
+  - sshpass -e scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r rpm-build/_build/* $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
+
+  # Update the RPM repository
+  - export DEPLOY_CMD="createrepo ${DEPLOY_PATH}/"
+  - sshpass -e ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST $DEPLOY_CMD
+
