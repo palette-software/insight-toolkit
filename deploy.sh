@@ -6,7 +6,7 @@ echo "DEPLOY_PASSWORD=$DEPLOY_PASSWORD"
 
 ls -latr ~/.ssh/known_hosts
 
-export SSHPASS=$DEPLOY_PASS
+# export SSHPASS=$DEPLOY_PASS
 echo "SSHPASS=$SSHPASS"
 sshpass -e scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r rpm-build/_build/* $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
 

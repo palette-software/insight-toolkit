@@ -40,6 +40,7 @@ before_deploy:
   - echo $(pwd)
   - echo $VERSION
   - echo $TRAVIS_BUILD_NUMBER
+  - export SSHPASS=$DEPLOY_PASS
   - rpmbuild -bb --buildroot $(pwd) --define "version $VERSION" --define "buildrelease $TRAVIS_BUILD_NUMBER" --define "_rpmdir $(pwd)/_build" ../palette-insight-toolkit.spec
   - cd ..
 
