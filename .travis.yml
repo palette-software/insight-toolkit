@@ -19,7 +19,6 @@ addons:
 before_script:
   - export BUILD_TAG="$TRAVIS_BRANCH-$(date -u "+%Y-%m-%d").$TRAVIS_BUILD_NUMBER"
   - echo "==== Setting ${BUILD_TAG} as version ===="
-  - echo ${BUILD_TAG} > lib/assets/VERSION
 
 script:
   - echo "Nothing to do. It just works :)"
