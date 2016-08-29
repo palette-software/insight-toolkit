@@ -24,9 +24,10 @@ script:
   - echo "Nothing to do. It just works :)"
 
 before_deploy:
-  - export VERSION=$(echo $TRAVIS_TAG | grep -o '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*')
+  - export VERSION=v1.0.$TRAVIS_BUILD_NUMBER
   - mkdir -p rpm-build
   - cd rpm-build
+  - mkdir -p _build
 
   # Create directories
   - mkdir -p opt/insight-toolkit
@@ -41,6 +42,10 @@ before_deploy:
 
 deploy:
   provider: script
-  script: deploy.sh
+  script: "./deploy.sh"
+  skip_cleanup: true
   on:
     branch: master
+
+notifications:
+  email: false
