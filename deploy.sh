@@ -8,6 +8,9 @@ ls -latr ~/.ssh/known_hosts
 
 # export SSHPASS=$DEPLOY_PASS
 echo $(pwd)
+ls $(pwd)
+ls $(pwd)/rpm-build
+ls $(pwd)/rpm-build/_build
 sshpass -e scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r rpm-build/_build/* $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
 
 # Update the RPM repository
