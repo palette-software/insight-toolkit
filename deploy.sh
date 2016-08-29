@@ -1,5 +1,8 @@
   # Upload the RPM to the RPM repository
   # by exportin it to SSHPASS, sshpass wont log the command line and the password
+echo "DEPLOY_USER=$DEPLOY_USER"
+echo "DEPLOY_HOST=$DEPLOY_HOST"
+
   export SSHPASS=$DEPLOY_PASS
   sshpass -e scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r rpm-build/_build/* $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
 
