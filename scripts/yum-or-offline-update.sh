@@ -25,13 +25,13 @@ return_code=$?
 
 if [[ return_code -ne 0 ]]; then
 	echo "Failed to update $insight_product via yum! Trying to perform an offline install..." >> $UPDATE_PROGRESS_FILE
-	/opt/update-insight/offline-update-insight-product.sh $insight_product
+	/opt/insight-toolkit/offline-update-insight-product.sh $insight_product
 	
 	return_code=$?
 
 	# Check if offline install went alright
 	if [[ return_code -ne 0 ]]; then
 		echo "Failed to update $insight_product! Both yum and offline install failed." >> $UPDATE_PROGRESS_FILE
-		exit 1
+		exit $return_code
 	fi
 fi

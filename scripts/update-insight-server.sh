@@ -5,9 +5,9 @@ set -e
 
 # First try to update Palette Insight Server via yum, but if it fails,
 # try to perform an offline update.
-/opt/update-insight/yum-or-offline-update.sh palette-insight-server
+/opt/insight-toolkit/yum-or-offline-update.sh palette-insight-server
 
 sudo supervisorctl restart palette-insight-server
-sudo service nginx restart
+# sudo service nginx restart
 
 exit 0
