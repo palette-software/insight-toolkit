@@ -45,7 +45,7 @@ deploy:
   script: "./deploy.sh"
   skip_cleanup: true
   on:
-    branch: master
+    branch: rpm
 
 notifications:
   email: false
