@@ -2,7 +2,11 @@
 set -e
 
 (
-	flock -n 200
+    # number chosen here is totally arbitrary. it is a file descriptor (FD)
+    # the only problem that can happen if someone else tries to flock on the same FD
+    # that case we would lock each other out. Hopefully termporarily.
+    # Note that the same FD needs to be used at the end of the subprocess definition (block)
+	flock -n 4263
 
 	echo "$(date +"%Y-%m-%d %H:%M:%S") Update start"
 
@@ -20,4 +24,4 @@ set -e
 	/opt/insight-toolkit/update-loadtables.sh
 	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Load"
 
-) 200>/tmp/insight-toolkit.flock
+) 4263>/tmp/insight-toolkit.flock
