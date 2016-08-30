@@ -74,7 +74,7 @@ Palette Insight Toolkit
 # noop
 
 %files
-%defattr(-,root,root,-)
+%defattr(-,insight,insight,-)
 
 # Reject config files already listed or parent directories, then prefix files
 # with "/", then make sure paths with spaces are quoted. 
