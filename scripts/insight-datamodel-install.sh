@@ -15,7 +15,6 @@ DB_NAME=palette
 SCHEMA_NAME=palette
 VERSION_TABLE_NAME=db_version_meta
 
-# ROOTDIR=$(readlink --canonicalize `dirname $0`)
 ROOTDIR=/opt/palette-insight-reporting
 
 echo "Inside ${ROOTDIR}"
