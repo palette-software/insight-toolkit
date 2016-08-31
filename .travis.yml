@@ -31,6 +31,7 @@ before_deploy:
 
   # Create directories
   - mkdir -p opt/insight-toolkit
+  - mkdir -p var/log/insight-toolkit
 
   # Copy the binary
   - cp -v ../scripts/* opt/insight-toolkit
