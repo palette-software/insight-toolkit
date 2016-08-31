@@ -15,7 +15,7 @@ DB_NAME=palette
 SCHEMA_NAME=palette
 VERSION_TABLE_NAME=db_version_meta
 
-ROOTDIR=$(readlink --canonicalize `dirname $0`)
+ROOTDIR=/opt/palette-insight-reporting
 
 echo "Inside ${ROOTDIR}"
 
@@ -116,13 +116,13 @@ fi
 
   # Check if the existing version is actually in the list of migrations
 if [[ $TARGET_VERSION_IDX = 0 ]]; then
-  echo "Cannot find target version: ${TARGET_VERSION} in versions: ${MIGRATION_VERSIONS}"
+  echo "Cannot find target version: ${TARGET_VERSION}"
   exit 4
 fi
 
   # Check if the existing version is actually in the list of migrations
 if [[ $EXISTING_VERSION_IDX = 0 ]]; then
-  echo "Cannot find existing version: ${EXISTING_VERSION} in versions: ${MIGRATION_VERSIONS}"
+  echo "Cannot find existing version: ${EXISTING_VERSION}"
   exit 4
 fi
 
