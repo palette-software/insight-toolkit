@@ -17,6 +17,14 @@ set -e
 
 	export UPDATE_PROGRESS_FILE=/var/log/insight-services/progress.log
 
+	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Toolkit"
+	/opt/insight-toolkit/update-insight-toolkit.sh
+	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Toolkit"
+
+	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Website"
+	/opt/insight-toolkit/update-insight-website.sh
+	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Website"
+
 	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Server"
 	/opt/insight-toolkit/update-insight-server.sh
 	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Server"
