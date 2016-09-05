@@ -23,7 +23,7 @@ sudo yum install -y $insight_product
 return_code=$?
 
 if [[ return_code -ne 0 ]]; then
-	echo "0,Failed to update $insight_product via yum! Trying to perform an offline install..." >> $UPDATE_PROGRESS_FILE
+	echo "$PROGRESS,Failed to update $insight_product via yum! Trying to perform an offline install..." >> $UPDATE_PROGRESS_FILE
 	/opt/insight-toolkit/offline-update-insight-product.sh $insight_product
 	
 	return_code=$?
