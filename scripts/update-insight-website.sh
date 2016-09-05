@@ -7,6 +7,7 @@ set -e
 # try to perform an offline update.
 /opt/insight-toolkit/yum-or-offline-update.sh palette-insight-website
 
-sudo supervisorctl restart insight-services-webui
+# Don't restart it here as it would stop running the whole update script.
+# sudo supervisorctl restart insight-services-webui
 
 exit 0
