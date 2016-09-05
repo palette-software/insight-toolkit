@@ -16,7 +16,7 @@ fi
 
 # By convention the update file needs to be located in the /tmp folder
 offline_update_file=/tmp/$insight_product.rpm
-echo "Looking for $offline_update_file ..." >> $UPDATE_PROGRESS_FILE
+echo "$PROGRESS,Looking for $offline_update_file ..." >> $UPDATE_PROGRESS_FILE
 
 rpm -Uvh $offline_update_file
 return_code=$?
@@ -25,14 +25,14 @@ return_code=$?
 echo "Return code of rpm command: $return_code"
 
 if [[ return_code -eq 2 ]]; then
-	echo "Skipped offline update as newer version of $insight_product is already installed."
+	echo "$PROGRESS,Skipped offline update as newer version of $insight_product is already installed." >> $UPDATE_PROGRESS_FILE
 	exit 0
 fi
 
 if [[ return_code -ne 0 ]]; then
-	echo "Failed to update $insight_product offline!" >> $UPDATE_PROGRESS_FILE
+	echo "$PROGRESS,Failed to update $insight_product offline!" >> $UPDATE_PROGRESS_FILE
 	exit 1
 fi
 
-echo "Successfully updated $insight_product offline." >> $UPDATE_PROGRESS_FILE
+echo "$PROGRESS,Successfully updated $insight_product offline." >> $UPDATE_PROGRESS_FILE
 exit 0
