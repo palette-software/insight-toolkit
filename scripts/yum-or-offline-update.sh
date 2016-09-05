@@ -16,22 +16,24 @@ else
     exit 1
 fi
 
-echo "Gathering update packages for $insight_product via yum..." > $UPDATE_PROGRESS_FILE
+echo "$PROGRESS,Gathering update packages for $insight_product via yum..." >> $UPDATE_PROGRESS_FILE
 
 # We need to make sure we don't get our latest package from yum cache.
-sudo yum clean all
 sudo yum install -y $insight_product
 return_code=$?
 
 if [[ return_code -ne 0 ]]; then
-	echo "Failed to update $insight_product via yum! Trying to perform an offline install..." >> $UPDATE_PROGRESS_FILE
+	echo "0,Failed to update $insight_product via yum! Trying to perform an offline install..." >> $UPDATE_PROGRESS_FILE
 	/opt/insight-toolkit/offline-update-insight-product.sh $insight_product
 	
 	return_code=$?
 
 	# Check if offline install went alright
 	if [[ return_code -ne 0 ]]; then
-		echo "Failed to update $insight_product! Both yum and offline install failed." >> $UPDATE_PROGRESS_FILE
+		echo "0,Failed to update $insight_product! Both yum and offline install failed." >> $UPDATE_PROGRESS_FILE
 		exit $return_code
 	fi
 fi
+
+echo "$((PROGRESS+PROGRESS_RANGE/2)),Successfully installed packages for $insight_product." >> $UPDATE_PROGRESS_FILE
+
