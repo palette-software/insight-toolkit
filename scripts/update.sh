@@ -42,6 +42,11 @@ set -e
     export PROGRESS=70
 	/opt/insight-toolkit/update-data-model.sh
 	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Data Model"
+    
+    echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Reporting Framework"
+    export PROGRESS=75
+	/opt/insight-toolkit/update-insight-reporting-framework.sh
+	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Reporting Framework"
 
 	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Load"
     export PROGRESS=90
