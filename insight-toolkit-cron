@@ -1,0 +1,8 @@
+# Palette Insight Load Tables
+* * * * *    /opt/palette-insight-talend/load_tables.sh
+
+# Palette Insight Sanity Checks
+*/10 * * * * /opt/insight-sanity-check/sanity-check.sh
+
+# Palette Insight Load Control
+* * * * *    /opt/insight-toolkit/loadctrl.sh
