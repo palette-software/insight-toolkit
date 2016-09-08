@@ -21,9 +21,6 @@ before_script:
   - echo "==== Setting ${BUILD_TAG} as version ===="
 
 script:
-  - echo "Nothing to do. It just works :)"
-
-before_deploy:
   - export VERSION=v1.0.$TRAVIS_BUILD_NUMBER
   - mkdir -p rpm-build
   - cd rpm-build
