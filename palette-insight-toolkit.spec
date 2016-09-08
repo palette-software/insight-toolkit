@@ -55,6 +55,9 @@ Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 %pre
 # noop
 
+%post
+crontab -u insight /opt/insight-toolkit/insight-toolkit-cron
+
 %postun
 # noop
 
