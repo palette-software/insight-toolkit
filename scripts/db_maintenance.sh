@@ -2,10 +2,9 @@
 
 DBNAME="palette"
 SCHEMA="palette"
-LOGFILE="/var/log/insight-toolkit/db_maintenance.log"
 
-echo "Start maintenance $(date)" > $LOGFILE
-echo "Start vacuum analyze pg_catalog tables $(date)" >> $LOGFILE
+echo "Start maintenance $(date)"
+echo "Start vacuum analyze pg_catalog tables $(date)"
 
 psql -tc "select 'VACUUM ANALYZE ' || b.nspname || '.' || relname || ';'
 from
@@ -14,27 +13,27 @@ from
 where
         a.relnamespace = b.oid and
         b.nspname in ('pg_catalog') and
-        a.relkind='r'" $DBNAME | psql -a $DBNAME >> $LOGFILE 2>&1
+        a.relkind='r'" $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End vacuum analyze pg_catalog tables $(date)" >> $LOGFILE
+echo "End vacuum analyze pg_catalog tables $(date)"
 
-echo "Start set connection limit for readonly to 0 $(date)" >> $LOGFILE
-psql $DBNAME -c "alter role readonly with CONNECTION LIMIT 0" >> $LOGFILE 2>&1
-echo "End set connection limit for readonly to 0 $(date)" >> $LOGFILE
+echo "Start set connection limit for readonly to 0 $(date)"
+psql $DBNAME -c "alter role readonly with CONNECTION LIMIT 0" 2>&1
+echo "End set connection limit for readonly to 0 $(date)"
 
-echo "Start terminate readonly connections $(date)" >> $LOGFILE
+echo "Start terminate readonly connections $(date)"
 
 psql -tc "select 'select pg_terminate_backend(' || procpid || ');'
 from
         pg_stat_activity
 where
         datname = '$SCHEMA' and
-        usename = 'readonly'" $DBNAME | psql -a $DBNAME >> $LOGFILE 2>&1
+        usename = 'readonly'" $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End terminate readonly connections $(date)" >> $LOGFILE
+echo "End terminate readonly connections $(date)"
 
 
-echo "Start drop old partitions. " $(date) >> $LOGFILE
+echo "Start drop old partitions. " $(date)
 
 psql -tc "select
                         drop_stmt
@@ -53,14 +52,14 @@ psql -tc "select
                 where
                         rn > 15
                 order by 1
-        " $DBNAME | psql -a $DBNAME >> $LOGFILE 2>&1
+        " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End drop old partitions. " + $(date) >> $LOGFILE
+echo "End drop old partitions. " + $(date)
 
 
-echo "Start drop indexes $(date)" >> $LOGFILE
+echo "Start drop indexes $(date)"
 
-psql $DBNAME >> $LOGFILE 2>&1 <<EOF
+psql $DBNAME 2>&1 <<EOF
 \set ON_ERROR_STOP on
 set search_path = $SCHEMA;
 begin;
@@ -79,9 +78,9 @@ commit;
 
 EOF
 
-echo "End drop indexes $(date)" >> $LOGFILE
+echo "End drop indexes $(date)"
 
-echo "Start vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions $(date)" >> $LOGFILE
+echo "Start vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions $(date)"
 
 psql -tc "select
                                 case when p.tablename = 'p_serverlogs_bootstrap_rpt' then 'vacuum analyze ' else 'vacuum ' end || p.schemaname || '.\"' || p.partitiontablename || '\";'
@@ -101,10 +100,10 @@ psql -tc "select
                                 p.parentpartitiontablename is null and
                                 o.statime is null and
                                 to_date(p.partitionname, 'yyyymmdd') < now()::date
-                " $DBNAME | psql -a $DBNAME >> $LOGFILE 2>&1
+                " $DBNAME | psql -a $DBNAME 2>&1
 
 
-echo "Start vacuum newly partitioned tables by new partitions $(date)" >> $LOGFILE
+echo "Start vacuum newly partitioned tables by new partitions $(date)"
 
 psql -tc "
 select 
@@ -129,13 +128,13 @@ from (
 	        p.parentpartitiontablename is null) parts
 where 
 	parts.rn = 1
-                " $DBNAME | psql -a $DBNAME >> $LOGFILE 2>&1
+                " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End vacuum newly partitioned tables by new partitions $(date)" >> $LOGFILE				
-echo "End vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions $(date)" >> $LOGFILE
+echo "End vacuum newly partitioned tables by new partitions $(date)"				
+echo "End vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions $(date)"
 
 
-echo "Start analyze tables by new partitions $(date)" >> $LOGFILE
+echo "Start analyze tables by new partitions $(date)"
 
 psql -tc "select
                                 'analyze ' || p.schemaname || '.\"' || p.partitiontablename || '\";'
@@ -153,9 +152,9 @@ psql -tc "select
                         p.parentpartitiontablename is not null and
                         o.statime is null and
                         to_date(p.parentpartitionname, 'yyyymmdd') < now()::date
-                " $DBNAME | psql -a $DBNAME >> $LOGFILE 2>&1
+                " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "Start analyze newly partitioned tables by new partitions $(date)" >> $LOGFILE
+echo "Start analyze newly partitioned tables by new partitions $(date)"
 
 psql -tc "
 select 
@@ -180,15 +179,15 @@ from (
 	        p.parentpartitiontablename is null) parts
 where 
 	parts.rn = 1
-                " $DBNAME | psql -a $DBNAME >> $LOGFILE 2>&1
+                " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End analyze newly partitioned tables by new partitions $(date)" >> $LOGFILE
+echo "End analyze newly partitioned tables by new partitions $(date)"
 				
-echo "End analyze tables by new partitions $(date)" >> $LOGFILE
+echo "End analyze tables by new partitions $(date)"
 
-echo "Start create indexes $(date)" >> $LOGFILE
+echo "Start create indexes $(date)"
 
-psql $DBNAME >> $LOGFILE 2>&1 <<EOF
+psql $DBNAME 2>&1 <<EOF
 \set ON_ERROR_STOP on
 set search_path = $SCHEMA;
 set role palette_palette_updater;
@@ -201,14 +200,14 @@ CREATE INDEX p_serverlogs_bootstrap_rpt_parent_vizql_session_idx ON p_serverlogs
 commit;
 EOF
 
-echo "End create indexes $(date)" >> $LOGFILE
+echo "End create indexes $(date)"
 
-echo "Start set connection limit for readonly to -1 $(date)" >> $LOGFILE
-psql $DBNAME -c "alter role readonly with CONNECTION LIMIT -1" >> $LOGFILE 2>&1
-echo "End set connection limit for readonly to -1 $(date)" >> $LOGFILE
+echo "Start set connection limit for readonly to -1 $(date)"
+psql $DBNAME -c "alter role readonly with CONNECTION LIMIT -1" 2>&1
+echo "End set connection limit for readonly to -1 $(date)"
 
 
-echo "Start handle missing grants on tables, $(date)" >> $LOGFILE
+echo "Start handle missing grants on tables, $(date)"
 
 psql -tc "select
 			case when r = 1 then owner_to_updater
@@ -236,9 +235,9 @@ psql -tc "select
 				tg.grantee is null
 			) p,
 			(select generate_series(1,2) as r) gs
-         " $DBNAME | psql -a $DBNAME >> $LOGFILE 2>&1
+         " $DBNAME | psql -a $DBNAME 2>&1
 								
-echo "End handle missing grants on tables, $(date)" >> $LOGFILE
+echo "End handle missing grants on tables, $(date)"
 
 
-echo "End maintenance $(date)" >> $LOGFILE
+echo "End maintenance $(date)"

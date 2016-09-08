@@ -3,6 +3,7 @@
 LOCKFILE=/tmp/PI_LoadCTRL.flock
 LOGFILE="/var/log/insight-toolkit/loadctrl.log"
 LAST_RUN_TS_FILE="/var/lib/palette/loadctrl_last_maintenance_ts"
+DBLOGFILE="/var/log/insight-toolkit/db_maintenance.log"
 
 set -e
 
@@ -27,7 +28,7 @@ set -e
     then
         echo Last maintenance run was at $(date -d "${LAST_MAINTENANCE_TS}" +"%Y.%m.%d. %H:%M:%S") >> $LOGFILE
         echo Start maintenance... $(date) >> $LOGFILE
-        sudo -u gpadmin /opt/insight-toolkit/db_maintenance.sh
+        sudo -u gpadmin /opt/insight-toolkit/db_maintenance.sh > ${DBLOGFILE}
         echo End maintenance $(date) >> $LOGFILE
         date -d "$currtime" +"%Y%m%d %H:%M:%S" > ${LAST_RUN_TS_FILE}
     else
