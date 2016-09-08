@@ -84,6 +84,7 @@ Palette Insight Toolkit
 # /usr/local/bin/palette-insight-server
 /opt/insight-toolkit
 %dir /var/log/insight-toolkit
+%dir /var/lib/palette
 
 # config files can be defined according to this
 # http://www-uxsup.csx.cam.ac.uk/~jw35/docs/rpm_config.html
