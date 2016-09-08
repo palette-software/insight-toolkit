@@ -2,6 +2,7 @@
 
 LOCKFILE=/tmp/PI_LoadCTRL.flock
 LOGFILE="/var/log/insight-toolkit/loadctrl.log"
+LAST_RUN_TS_FILE="/var/lib/palette/loadctrl_last_maintenance_ts"
 
 set -e
 
@@ -11,24 +12,24 @@ set -e
     # otherwise the flock command will fail.
     flock -n 768
 
-    if [ ! -e last_maintenance_ts ]
+    if [ ! -e ${LAST_RUN_TS_FILE} ]
     then
-        echo 10010101 00:00:01 > last_maintenance_ts
+        echo 10010101 00:00:01 > ${LAST_RUN_TS_FILE}
     fi
 
-    last_maintenance_ts=$(cat last_maintenance_ts)
+    LAST_MAINTENANCE_TS=$(cat ${LAST_RUN_TS_FILE})
     currtime=$(date)
 	#UTC 09:00 is 02:00 in USA SF time
     maintenance_after=0900
 
 	#Check if current time has passed the maintenece time and there has been NO maintenance in that day yet.
-    if [ $(date -d "$currtime" +"%H%M") -gt $maintenance_after -a $(date -d "$currtime" +"%Y%m%d") -gt $(date -d "$last_maintenance_ts" +"%Y%m%d") ]
+    if [ $(date -d "$currtime" +"%H%M") -gt $maintenance_after -a $(date -d "$currtime" +"%Y%m%d") -gt $(date -d "${LAST_MAINTENANCE_TS}" +"%Y%m%d") ]
     then
-        echo Last maintenance run was at $(date -d "$last_maintenance_ts" +"%Y.%m.%d. %H:%M:%S") >> $LOGFILE
+        echo Last maintenance run was at $(date -d "${LAST_MAINTENANCE_TS}" +"%Y.%m.%d. %H:%M:%S") >> $LOGFILE
         echo Start maintenance... $(date) >> $LOGFILE
         sudo -u gpadmin /opt/insight-toolkit/db_maintenance.sh
         echo End maintenance $(date) >> $LOGFILE
-        date -d "$currtime" +"%Y%m%d %H:%M:%S" > last_maintenance_ts
+        date -d "$currtime" +"%Y%m%d %H:%M:%S" > ${LAST_RUN_TS_FILE}
     else
         echo Start reporting... $(date) >> $LOGFILE
         /opt/insight-reporting-framework/run_reporting.sh
