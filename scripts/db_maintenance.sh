@@ -33,7 +33,7 @@ where
 echo "End terminate readonly connections $(date)"
 
 
-echo "Start drop old partitions. " $(date)
+echo "Start drop old partitions. $(date)"
 
 psql -tc "select
                         drop_stmt
@@ -54,7 +54,7 @@ psql -tc "select
                 order by 1
         " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End drop old partitions. " + $(date)
+echo "End drop old partitions. $(date)"
 
 
 echo "Start drop indexes $(date)"
