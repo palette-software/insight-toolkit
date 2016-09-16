@@ -4,9 +4,6 @@ DBNAME="palette"
 SCHEMA="palette"
 
 echo "Start maintenance $(date)"
-
-"$(dirname "$0")"/db_log_cleanup.sh
-
 echo "Start vacuum analyze pg_catalog tables $(date)"
 
 psql -tc "select 'VACUUM ANALYZE ' || b.nspname || '.' || relname || ';'
