@@ -27,14 +27,14 @@ set -e
     if [ $(date -d "$currtime" +"%H%M") -gt $maintenance_after -a $(date -d "$currtime" +"%Y%m%d") -gt $(date -d "${LAST_MAINTENANCE_TS}" +"%Y%m%d") ]
     then
         echo Last maintenance run was at $(date -d "${LAST_MAINTENANCE_TS}" +"%Y.%m.%d. %H:%M:%S") >> $LOGFILE
-        echo Start maintenance... $(date) >> $LOGFILE
+        echo "Start maintenance... $(date)" >> $LOGFILE
         sudo -u gpadmin /opt/insight-toolkit/db_log_cleanup.sh >> ${LOGFILE}
         sudo -u gpadmin /opt/insight-toolkit/db_maintenance.sh > ${DBLOGFILE}
-        echo End maintenance $(date) >> $LOGFILE
+        echo "End maintenance $(date)" >> $LOGFILE
         date -d "$currtime" +"%Y%m%d %H:%M:%S" > ${LAST_RUN_TS_FILE}
     else
-        echo Start reporting... $(date) >> $LOGFILE
+        echo "Start reporting... $(date)" >> $LOGFILE
         /opt/insight-reporting-framework/run_reporting.sh
-        echo End reporting $(date) >> $LOGFILE		
+        echo "End reporting $(date)" >> $LOGFILE		
     fi
 ) 768>${LOCKFILE}
