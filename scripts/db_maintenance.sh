@@ -5,7 +5,7 @@ SCHEMA="palette"
 
 echo "Start maintenance $(date)"
 
-$(dirname $0)/db_log_cleanup.sh
+"$(dirname "$0")"/db_log_cleanup.sh
 
 echo "Start vacuum analyze pg_catalog tables $(date)"
 
@@ -36,7 +36,7 @@ where
 echo "End terminate readonly connections $(date)"
 
 
-echo "Start drop old partitions. " $(date)
+echo "Start drop old partitions. $(date)"
 
 psql -tc "select
                         drop_stmt
@@ -57,7 +57,7 @@ psql -tc "select
                 order by 1
         " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End drop old partitions. " + $(date)
+echo "End drop old partitions. $(date)"
 
 
 echo "Start drop indexes $(date)"
