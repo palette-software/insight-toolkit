@@ -28,8 +28,8 @@ set -e
     then
         echo Last maintenance run was at $(date -d "${LAST_MAINTENANCE_TS}" +"%Y.%m.%d. %H:%M:%S") >> $LOGFILE
         echo "Start maintenance... $(date)" >> $LOGFILE
-        sudo -u gpadmin /opt/insight-toolkit/db_log_cleanup.sh >> ${LOGFILE}
-        sudo -u gpadmin /opt/insight-toolkit/db_maintenance.sh > ${DBLOGFILE}
+        sudo -i -u gpadmin /opt/insight-toolkit/db_log_cleanup.sh >> ${LOGFILE}
+        sudo -i -u gpadmin /opt/insight-toolkit/db_maintenance.sh > ${DBLOGFILE}
         echo "End maintenance $(date)" >> $LOGFILE
         date -d "$currtime" +"%Y%m%d %H:%M:%S" > ${LAST_RUN_TS_FILE}
     else
