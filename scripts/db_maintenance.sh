@@ -47,7 +47,7 @@ psql -tc "select
                                 schemaname = '$SCHEMA' and
                                 tablename in ('plainlogs', 'threadinfo', 'serverlogs', 'p_threadinfo', 'p_serverlogs', 'p_cpu_usage', 'p_cpu_usage_report', 'p_serverlogs_bootstrap_rpt', 'p_cpu_usage_bootstrap_rpt') and
                                 partitiontype = 'range' and
-                                partitionname not in ('10010101',  '100101')
+                                partitionname not in ('10010101', '100101')
                         ) a
                 where
                         rn > 15
