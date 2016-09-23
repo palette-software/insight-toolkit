@@ -42,6 +42,12 @@ psql -tc "select 'vacuum analyze ' || schemaname || '.' || tablename || ';'
 
 echo "End vacuum analyze history tables $(date)"
 
+echo "Start vacuum analyze p_http_requests and p_background_jobs $(date)"
+
+vacuum analyze $SCHEMA.p_http_requests;
+vacuum analyze $SCHEMA.p_background_jobs;
+
+echo "End vacuum analyze p_http_requests and p_background_jobs $(date)"
 
 echo "Start drop old partitions. $(date)"
 
