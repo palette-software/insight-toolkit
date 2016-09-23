@@ -1,4 +1,4 @@
-#!/bin/bash -l
+-#!/bin/bash -l
 
 DBNAME="palette"
 SCHEMA="palette"
@@ -44,8 +44,13 @@ echo "End vacuum analyze history tables $(date)"
 
 echo "Start vacuum analyze p_http_requests and p_background_jobs $(date)"
 
+
+psql $DBNAME 2>&1 <<EOF
+\set ON_ERROR_STOP on
+set search_path = $SCHEMA;
 vacuum analyze $SCHEMA.p_http_requests;
 vacuum analyze $SCHEMA.p_background_jobs;
+EOF
 
 echo "End vacuum analyze p_http_requests and p_background_jobs $(date)"
 
