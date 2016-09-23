@@ -32,6 +32,16 @@ where
 
 echo "End terminate readonly connections $(date)"
 
+echo "Start vacuum analyze history tables $(date)"
+
+psql -tc "select 'vacuum analyze ' || schemaname || '.' || tablename || ';' 
+            from pg_tables
+            where schemaname = '$SCHEMA'
+                and tablename like 'h#_%' escape '#'
+          " $DBNAME | psql -a $DBNAME 2>&1
+
+echo "End vacuum analyze history tables $(date)"
+
 
 echo "Start drop old partitions. $(date)"
 
