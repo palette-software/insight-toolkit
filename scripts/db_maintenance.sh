@@ -4,8 +4,12 @@ DBNAME="palette"
 SCHEMA="palette"
 RETENTION_IN_DAYS=15
 
-echo "Start maintenance $(date)"
-echo "Start vacuum analyze pg_catalog tables $(date)"
+log () {
+    echo "$1 $(date)"
+}
+
+log "Start maintenance"
+log "Start vacuum analyze pg_catalog tables"
 
 psql -tc "select 'VACUUM ANALYZE ' || b.nspname || '.' || relname || ';'
 from
@@ -16,13 +20,13 @@ where
         b.nspname in ('pg_catalog') and
         a.relkind='r'" $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End vacuum analyze pg_catalog tables $(date)"
+log "End vacuum analyze pg_catalog tables"
 
-echo "Start set connection limit for readonly to 0 $(date)"
+log "Start set connection limit for readonly to 0"
 psql $DBNAME -c "alter role readonly with CONNECTION LIMIT 0" 2>&1
-echo "End set connection limit for readonly to 0 $(date)"
+log "End set connection limit for readonly to 0"
 
-echo "Start terminate readonly connections $(date)"
+log "Start terminate readonly connections"
 
 psql -tc "select 'select pg_terminate_backend(' || procpid || ');'
 from
@@ -31,77 +35,77 @@ where
         datname = '$SCHEMA' and
         usename = 'readonly'" $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End terminate readonly connections $(date)"
+log "End terminate readonly connections"
 
-echo "Start deleting streaming tables $(date)"
+log "Start deleting streaming tables"
 
 psql $DBNAME 2>&1 <<EOF
 \set ON_ERROR_STOP on
 set search_path = $SCHEMA;
 
 delete from background_jobs
-using 
+using
     (select p_id
     from
         (select
             p_id,
             dense_rank() over (order by created_at::date desc) rn
-        from 
+        from
             background_jobs) b
      where
         rn > $RETENTION_IN_DAYS
-    ) s   
+    ) s
 where
     background_jobs.p_id = s.p_id
 ;
 
 delete from http_requests
-using 
+using
     (select p_id
     from
         (select
             p_id,
             dense_rank() over (order by created_at::date desc) rn
-        from 
+        from
             http_requests) b
      where
         rn > $RETENTION_IN_DAYS
-    ) s   
+    ) s
 where
-    http_requests.p_id = s.p_id    
+    http_requests.p_id = s.p_id
 ;
-    
+
 delete from countersamples
-using 
+using
     (select p_id
     from
         (select
             p_id,
             dense_rank() over (order by timestamp::date desc) rn
-        from 
+        from
             countersamples) b
      where
         rn > $RETENTION_IN_DAYS
-    ) s   
+    ) s
 where
-    countersamples.p_id = s.p_id    
+    countersamples.p_id = s.p_id
 ;
 
 EOF
 
-echo "End deleting streaming tables $(date)"
+log "End deleting streaming tables"
 
-echo "Start vacuum analyze history tables $(date)"
+log "Start vacuum analyze history tables"
 
-psql -tc "select 'vacuum analyze ' || schemaname || '.' || tablename || ';' 
+psql -tc "select 'vacuum analyze ' || schemaname || '.' || tablename || ';'
             from pg_tables
             where schemaname = '$SCHEMA'
                 and tablename like 'h#_%' escape '#'
           " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End vacuum analyze history tables $(date)"
+log "End vacuum analyze history tables"
 
-echo "Start vacuum analyze p_http_requests and p_background_jobs $(date)"
+log "Start vacuum analyze p_http_requests and p_background_jobs"
 
 
 psql $DBNAME 2>&1 <<EOF
@@ -111,9 +115,9 @@ vacuum analyze $SCHEMA.p_http_requests;
 vacuum analyze $SCHEMA.p_background_jobs;
 EOF
 
-echo "End vacuum analyze p_http_requests and p_background_jobs $(date)"
+log "End vacuum analyze p_http_requests and p_background_jobs"
 
-echo "Start drop old partitions. $(date)"
+log "Start drop old partitions."
 
 psql -tc "select
                         drop_stmt
@@ -134,10 +138,10 @@ psql -tc "select
                 order by 1
         " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End drop old partitions. $(date)"
+log "End drop old partitions."
 
 
-echo "Start drop indexes $(date)"
+log "Start drop indexes"
 
 psql $DBNAME 2>&1 <<EOF
 \set ON_ERROR_STOP on
@@ -158,9 +162,9 @@ commit;
 
 EOF
 
-echo "End drop indexes $(date)"
+log "End drop indexes"
 
-echo "Start vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions $(date)"
+log "Start vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions"
 
 psql -tc "select
                                 case when p.tablename = 'p_serverlogs_bootstrap_rpt' then 'vacuum analyze ' else 'vacuum ' end || p.schemaname || '.\"' || p.partitiontablename || '\";'
@@ -183,10 +187,10 @@ psql -tc "select
                 " $DBNAME | psql -a $DBNAME 2>&1
 
 
-echo "Start vacuum newly partitioned tables by new partitions $(date)"
+log "Start vacuum newly partitioned tables by new partitions"
 
 psql -tc "
-select 
+select
 	vac_command
 from (
 	select
@@ -206,15 +210,15 @@ from (
 							'p_process_class_agg_report',
 							'p_cpu_usage_bootstrap_rpt') and
 	        p.parentpartitiontablename is null) parts
-where 
+where
 	parts.rn = 1
                 " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End vacuum newly partitioned tables by new partitions $(date)"				
-echo "End vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions $(date)"
+log "End vacuum newly partitioned tables by new partitions"
+log "End vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions"
 
 
-echo "Start analyze tables by new partitions $(date)"
+log "Start analyze tables by new partitions"
 
 psql -tc "select
                                 'analyze ' || p.schemaname || '.\"' || p.partitiontablename || '\";'
@@ -234,10 +238,10 @@ psql -tc "select
                         to_date(p.parentpartitionname, 'yyyymmdd') < now()::date
                 " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "Start analyze newly partitioned tables by new partitions $(date)"
+log "Start analyze newly partitioned tables by new partitions"
 
 psql -tc "
-select 
+select
 	ana_command
 from (
 	select
@@ -257,15 +261,15 @@ from (
 							'p_process_class_agg_report',
 							'p_cpu_usage_bootstrap_rpt') and
 	        p.parentpartitiontablename is null) parts
-where 
+where
 	parts.rn = 1
                 " $DBNAME | psql -a $DBNAME 2>&1
 
-echo "End analyze newly partitioned tables by new partitions $(date)"
-				
-echo "End analyze tables by new partitions $(date)"
+log "End analyze newly partitioned tables by new partitions"
 
-echo "Start create indexes $(date)"
+log "End analyze tables by new partitions"
+
+log "Start create indexes"
 
 psql $DBNAME 2>&1 <<EOF
 \set ON_ERROR_STOP on
@@ -280,20 +284,20 @@ CREATE INDEX p_serverlogs_bootstrap_rpt_parent_vizql_session_idx ON p_serverlogs
 commit;
 EOF
 
-echo "End create indexes $(date)"
+log "End create indexes"
 
-echo "Start set connection limit for readonly to -1 $(date)"
+log "Start set connection limit for readonly to -1"
 psql $DBNAME -c "alter role readonly with CONNECTION LIMIT -1" 2>&1
-echo "End set connection limit for readonly to -1 $(date)"
+log "End set connection limit for readonly to -1"
 
 
-echo "Start handle missing grants on tables, $(date)"
+log "Start handle missing grants on tables,"
 
 psql -tc "select
 			case when r = 1 then owner_to_updater
 				 when r = 2 then grant_to_looker
 			end as cmd
-		from 
+		from
 			(
 			select
 				'alter table ' || t.schemaname || '.' || t.tablename || ' owner to palette_palette_updater;' as owner_to_updater,
@@ -302,13 +306,13 @@ psql -tc "select
 				inner join  pg_tables t on (t.schemaname = et.schemaname and
 											case when substr(t.tablename, 1, 2) = 'h_' then substr(t.tablename, 3)
 												 else t.tablename
-											end = substr(et.tablename, 5)                                
+											end = substr(et.tablename, 5)
 											)
 				left outer join information_schema.role_table_grants tg on (tg.table_schema = t.schemaname and
 																			tg.table_name = t.tablename and
 																			tg.privilege_type = 'SELECT' and
 																			tg.grantee = 'palette_palette_looker')
-			where 
+			where
 				et.schemaname = '$SCHEMA' and
 				et.tablename like 'ext#_%' escape '#' and
 				et.tablename <> 'ext_error_table' and
@@ -316,8 +320,8 @@ psql -tc "select
 			) p,
 			(select generate_series(1,2) as r) gs
          " $DBNAME | psql -a $DBNAME 2>&1
-								
-echo "End handle missing grants on tables, $(date)"
+
+log "End handle missing grants on tables"
 
 
-echo "End maintenance $(date)"
+log "End maintenance"
