@@ -2,6 +2,7 @@
 
 DBNAME="palette"
 SCHEMA="palette"
+RETENTION_IN_DAYS = 15
 
 echo "Start maintenance $(date)"
 echo "Start vacuum analyze pg_catalog tables $(date)"
@@ -48,7 +49,7 @@ using
         from 
             background_jobs) b
      where
-        rn > 15
+        rn > $RETENTION_IN_DAYS
     ) s   
 where
     background_jobs.p_id = s.p_id
@@ -64,7 +65,7 @@ using
         from 
             http_requests) b
      where
-        rn > 15
+        rn > $RETENTION_IN_DAYS
     ) s   
 where
     http_requests.p_id = s.p_id    
@@ -80,7 +81,7 @@ using
         from 
             countersamples) b
      where
-        rn > 15
+        rn > $RETENTION_IN_DAYS
     ) s   
 where
     countersamples.p_id = s.p_id    
@@ -129,7 +130,7 @@ psql -tc "select
                                 partitionname not in ('10010101', '100101')
                         ) a
                 where
-                        rn > 15
+                        rn > $RETENTION_IN_DAYS
                 order by 1
         " $DBNAME | psql -a $DBNAME 2>&1
 
