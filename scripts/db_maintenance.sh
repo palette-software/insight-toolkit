@@ -32,6 +32,64 @@ where
 
 echo "End terminate readonly connections $(date)"
 
+echo "Start deleting streaming tables $(date)"
+
+psql $DBNAME 2>&1 <<EOF
+\set ON_ERROR_STOP on
+set search_path = $SCHEMA;
+
+delete from background_jobs
+using 
+    (select p_id
+    from
+        (select
+            p_id,
+            dense_rank() over (order by created_at::date desc) rn
+        from 
+            background_jobs) b
+     where
+        rn > 15
+    ) s   
+where
+    background_jobs.p_id = s.p_id
+;
+
+delete from http_requests
+using 
+    (select p_id
+    from
+        (select
+            p_id,
+            dense_rank() over (order by created_at::date desc) rn
+        from 
+            http_requests) b
+     where
+        rn > 15
+    ) s   
+where
+    http_requests.p_id = s.p_id    
+;
+    
+delete from countersamples
+using 
+    (select p_id
+    from
+        (select
+            p_id,
+            dense_rank() over (order by timestamp::date desc) rn
+        from 
+            countersamples) b
+     where
+        rn > 15
+    ) s   
+where
+    countersamples.p_id = s.p_id    
+;
+
+EOF
+
+echo "End deleting streaming tables $(date)"
+
 echo "Start vacuum analyze history tables $(date)"
 
 psql -tc "select 'vacuum analyze ' || schemaname || '.' || tablename || ';' 
