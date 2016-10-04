@@ -2,7 +2,7 @@
 
 DBNAME="palette"
 SCHEMA="palette"
-RETENTION_IN_DAYS = 15
+RETENTION_IN_DAYS=15
 
 echo "Start maintenance $(date)"
 echo "Start vacuum analyze pg_catalog tables $(date)"
