@@ -323,5 +323,35 @@ psql -tc "select
 
 log "End handle missing grants on tables"
 
+# On Sundays
+if [ $(date +%u) -eq 7 ]; then
+
+    log "Start weekly analyze"
+
+    psql $DBNAME 2>&1 <<EOF
+    \set ON_ERROR_STOP on
+    set search_path = $SCHEMA;
+
+    analyze serverlogs;
+    analyze threadinfo;
+    analyze plainlogs;
+    analyze rootpartition plainlogs;
+    analyze rootpartition serverlogs;
+    analyze rootpartition threadinfo;
+    analyze rootpartition p_serverlogs;
+    analyze rootpartition p_threadinfo;
+    analyze rootpartition p_cpu_usage;
+    analyze rootpartition p_cpu_usage_report;
+    analyze rootpartition p_serverlogs_bootstrap_rpt;
+    analyze rootpartition p_cpu_usage_bootstrap_rpt;
+    analyze rootpartition p_interactor_session;
+    analyze rootpartition p_cpu_usage_agg_report;
+    analyze rootpartition p_process_class_agg_report;
+
+EOF
+
+    log "End weekly analyze"
+fi
+
 
 log "End maintenance"
