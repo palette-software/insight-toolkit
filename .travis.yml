@@ -31,14 +31,16 @@ script:
   - mkdir -p var/log/insight-toolkit
   - mkdir -p var/lib/palette
   - mkdir -p etc/supervisord.d
+  - mkdir -p opt/palette-insight-talend
 
   # Copy the binary
   - cp -v ../scripts/* opt/insight-toolkit
   - cp ../insight-toolkit-cron opt/insight-toolkit
   - echo "BUILDING VERSION:$VERSION"
 
-  # Copy the gpfdist ini file as that needs to be upadted
+  # Copy the gpfdist ini file and loadtables run script as they needs to be upadted
   - cp -v ../files/insight-gpfdist.ini etc/supervisord.d
+  - cp -v ../files/load_tables.sh opt/palette-insight-talend/load_tables.sh
 
   # build the rpm
   - rpmbuild -bb --buildroot $(pwd) --define "version $VERSION" --define "buildrelease $TRAVIS_BUILD_NUMBER" --define "_rpmdir $(pwd)/_build" ../palette-insight-toolkit.spec
