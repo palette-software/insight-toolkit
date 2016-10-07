@@ -13,6 +13,12 @@ set -e
     # 1024, so it's safer to pick a number under 1024.
 	flock -n 863
 
+    # Steps needed only for 1.x -> 2.x upgrade
+    LOADTABLES_LOCKFILE=/tmp/PI_ImportTables_prod.flock
+    flock $LOADTABLES_LOCKFILE > /opt/insight-toolkit/2-0-upgrade.sh
+
+    # Steps needed for anything else
+
 	echo "$(date +"%Y-%m-%d %H:%M:%S") Update start"
 
 	export UPDATE_PROGRESS_FILE=/var/log/insight-services/progress.log
@@ -60,5 +66,8 @@ set -e
     sleep 10
     rm -rf $UPDATE_PROGRESS_FILE
     sudo supervisorctl restart insight-services-webui
+
+    flock $LOADTABLES_LOCKFILE > /opt/insight-toolkit/2-0-upgrade-post.sh
+
 
 ) 863>/tmp/insight-toolkit.flock

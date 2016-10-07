@@ -83,6 +83,8 @@ Palette Insight Toolkit
 # with "/", then make sure paths with spaces are quoted. 
 # /usr/local/bin/palette-insight-server
 /opt/insight-toolkit
+/etc/supervisord.d
+/opt/palette-insight-talend
 %dir /var/log/insight-toolkit
 %dir /var/lib/palette
 
