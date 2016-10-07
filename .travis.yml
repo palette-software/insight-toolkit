@@ -30,11 +30,15 @@ script:
   - mkdir -p opt/insight-toolkit
   - mkdir -p var/log/insight-toolkit
   - mkdir -p var/lib/palette
+  - mkdir -p etc/supervisord.d
 
   # Copy the binary
   - cp -v ../scripts/* opt/insight-toolkit
   - cp ../insight-toolkit-cron opt/insight-toolkit
   - echo "BUILDING VERSION:$VERSION"
+
+  # Copy the gpfdist ini file as that needs to be upadted
+  - cp -v ../files/insight-gpfdist.ini etc/supervisord.d
 
   # build the rpm
   - rpmbuild -bb --buildroot $(pwd) --define "version $VERSION" --define "buildrelease $TRAVIS_BUILD_NUMBER" --define "_rpmdir $(pwd)/_build" ../palette-insight-toolkit.spec
