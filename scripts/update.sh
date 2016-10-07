@@ -14,8 +14,8 @@ set -e
 	flock -n 863
 
     # Steps needed only for 1.x -> 2.x upgrade
-    LOADTABLES_LOCKFILE=/tmp/PI_ImportTables_prod.flock
-    flock $LOADTABLES_LOCKFILE > /opt/insight-toolkit/2-0-upgrade.sh
+    export LOADTABLES_LOCKFILE=/tmp/PI_ImportTables_prod.flock
+    flock -w 600 $LOADTABLES_LOCKFILE /opt/insight-toolkit/2-0-upgrade.sh
 
     # Steps needed for anything else
 
@@ -46,8 +46,14 @@ set -e
 
 	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Data Model"
     export PROGRESS=70
+    export PROGRESS_RANGE=10
 	/opt/insight-toolkit/update-data-model.sh
 	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Data Model"
+    
+	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Agent"
+    export PROGRESS=80
+	/opt/insight-toolkit/update-insight-agent.sh
+	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Agent"
     
     echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Reporting Framework"
     export PROGRESS=90
@@ -67,7 +73,7 @@ set -e
     rm -rf $UPDATE_PROGRESS_FILE
     sudo supervisorctl restart insight-services-webui
 
-    flock $LOADTABLES_LOCKFILE > /opt/insight-toolkit/2-0-upgrade-post.sh
+    flock -w 600 $LOADTABLES_LOCKFILE /opt/insight-toolkit/2-0-upgrade-post.sh
 
 
 ) 863>/tmp/insight-toolkit.flock
