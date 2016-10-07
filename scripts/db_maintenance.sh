@@ -140,30 +140,6 @@ psql -tc "select
 
 log "End drop old partitions."
 
-
-log "Start drop indexes"
-
-psql $DBNAME 2>&1 <<EOF
-\set ON_ERROR_STOP on
-set search_path = $SCHEMA;
-begin;
-select drop_child_indexes('$SCHEMA.p_cpu_usage_bootstrap_rpt_parent_vizql_session_idx');
-select drop_child_indexes('$SCHEMA.p_cpu_usage_report_cpu_usage_parent_vizql_session_idx');
-select drop_child_indexes('$SCHEMA.p_serverlogs_p_id_idx');
-select drop_child_indexes('$SCHEMA.p_serverlogs_parent_vizql_session_idx');
-select drop_child_indexes('$SCHEMA.p_serverlogs_bootstrap_rpt_parent_vizql_session_idx');
-
-drop index p_cpu_usage_bootstrap_rpt_parent_vizql_session_idx;
-drop index p_cpu_usage_report_cpu_usage_parent_vizql_session_idx;
-drop index p_serverlogs_p_id_idx;
-drop index p_serverlogs_parent_vizql_session_idx;
-drop index p_serverlogs_bootstrap_rpt_parent_vizql_session_idx;
-commit;
-
-EOF
-
-log "End drop indexes"
-
 log "Start vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions"
 
 psql -tc "select
@@ -269,23 +245,6 @@ log "End analyze newly partitioned tables by new partitions"
 
 log "End analyze tables by new partitions"
 
-log "Start create indexes"
-
-psql $DBNAME 2>&1 <<EOF
-\set ON_ERROR_STOP on
-set search_path = $SCHEMA;
-set role palette_palette_updater;
-begin;
-CREATE INDEX p_cpu_usage_bootstrap_rpt_parent_vizql_session_idx ON p_cpu_usage_bootstrap_rpt USING btree (cpu_usage_parent_vizql_session);
-CREATE INDEX p_cpu_usage_report_cpu_usage_parent_vizql_session_idx ON p_cpu_usage_report USING btree (cpu_usage_parent_vizql_session);
-CREATE INDEX p_serverlogs_p_id_idx ON p_serverlogs USING btree (p_id);
-CREATE INDEX p_serverlogs_parent_vizql_session_idx ON p_serverlogs USING btree (parent_vizql_session);
-CREATE INDEX p_serverlogs_bootstrap_rpt_parent_vizql_session_idx ON p_serverlogs_bootstrap_rpt USING btree (parent_vizql_session);
-commit;
-EOF
-
-log "End create indexes"
-
 log "Start set connection limit for readonly to -1"
 psql $DBNAME -c "alter role readonly with CONNECTION LIMIT -1" 2>&1
 log "End set connection limit for readonly to -1"
@@ -322,6 +281,36 @@ psql -tc "select
          " $DBNAME | psql -a $DBNAME 2>&1
 
 log "End handle missing grants on tables"
+
+# On Sundays
+if [ $(date +%u) -eq 7 ]; then
+
+    log "Start weekly analyze"
+
+    psql $DBNAME 2>&1 <<EOF
+    \set ON_ERROR_STOP on
+    set search_path = $SCHEMA;
+
+    analyze serverlogs;
+    analyze threadinfo;
+    analyze plainlogs;
+    analyze rootpartition plainlogs;
+    analyze rootpartition serverlogs;
+    analyze rootpartition threadinfo;
+    analyze rootpartition p_serverlogs;
+    analyze rootpartition p_threadinfo;
+    analyze rootpartition p_cpu_usage;
+    analyze rootpartition p_cpu_usage_report;
+    analyze rootpartition p_serverlogs_bootstrap_rpt;
+    analyze rootpartition p_cpu_usage_bootstrap_rpt;
+    analyze rootpartition p_interactor_session;
+    analyze rootpartition p_cpu_usage_agg_report;
+    analyze rootpartition p_process_class_agg_report;
+
+EOF
+
+    log "End weekly analyze"
+fi
 
 
 log "End maintenance"
