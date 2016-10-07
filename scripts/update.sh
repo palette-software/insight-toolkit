@@ -13,9 +13,13 @@ set -e
     # 1024, so it's safer to pick a number under 1024.
 	flock -n 863
 
-    # Steps needed only for 1.x -> 2.x upgrade
-    export LOADTABLES_LOCKFILE=/tmp/PI_ImportTables_prod.flock
-    flock -w 600 $LOADTABLES_LOCKFILE /opt/insight-toolkit/2-0-upgrade.sh
+    export TWOZEROFIRSTTIME=0
+    if [ ! -d "/data/insight-server/uploads/palette" ]; then
+        # Steps needed only for 1.x -> 2.x upgrade
+        export LOADTABLES_LOCKFILE=/tmp/PI_ImportTables_prod.flock
+        flock -w 600 $LOADTABLES_LOCKFILE /opt/insight-toolkit/2-0-upgrade.sh
+        export TWOZEROFIRSTTIME=1
+    fi
 
     # Steps needed for anything else
 
@@ -73,7 +77,9 @@ set -e
     rm -rf $UPDATE_PROGRESS_FILE
     sudo supervisorctl restart insight-services-webui
 
-    flock -w 600 $LOADTABLES_LOCKFILE /opt/insight-toolkit/2-0-upgrade-post.sh
+    if [ "$TWOZEROFIRSTTIME" == "1" ]; then
+        flock -w 600 $LOADTABLES_LOCKFILE /opt/insight-toolkit/2-0-upgrade-post.sh
+    fi
 
 
 ) 863>/tmp/insight-toolkit.flock
