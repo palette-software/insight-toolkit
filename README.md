@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/palette-software/insight-toolkit.svg?token=qWG5FJDvsjLrsJpXgxSJ&branch=master)](https://travis-ci.com/palette-software/insight-toolkit)
+
 # Insight toolkit
 Here you can find some essential scripts that can update each and every Insight components.
 
