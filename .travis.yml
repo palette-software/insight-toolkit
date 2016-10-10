@@ -29,6 +29,7 @@ script:
   # Create directories
   - mkdir -p opt/insight-toolkit
   - mkdir -p var/log/insight-toolkit
+  - mkdir -p var/log/insight-gpfdist
   - mkdir -p var/lib/palette
   - mkdir -p etc/supervisord.d
   - mkdir -p opt/palette-insight-talend
