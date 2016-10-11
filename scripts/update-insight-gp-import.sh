@@ -5,5 +5,5 @@ set -e
 
 # First try to update Palette Insight Server via yum, but if it fails,
 # try to perform an offline update.
-/opt/insight-toolkit/yum-or-offline-update.sh palette-insight-loadtables
+/opt/insight-toolkit/yum-or-offline-update.sh palette-insight-gp-import
 
