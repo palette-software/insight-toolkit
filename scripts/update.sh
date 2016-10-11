@@ -65,10 +65,10 @@ set -e
 	/opt/insight-toolkit/update-insight-reporting-framework.sh
 	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Reporting Framework"
 
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Load"
+	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight GP-Import"
     export PROGRESS=95
-	/opt/insight-toolkit/update-loadtables.sh
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Load"
+	/opt/insight-toolkit/update-insight-gp-import.sh
+	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight GP-Import"
     echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" >> $UPDATE_PROGRESS_FILE
 
     # Now take a big breath and restart ourselves.
