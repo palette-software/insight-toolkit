@@ -129,7 +129,7 @@ psql -tc "select
                         from pg_partitions t
                         where
                                 schemaname = '$SCHEMA' and
-                                tablename in ('plainlogs', 'threadinfo', 'serverlogs', 'p_threadinfo', 'p_serverlogs', 'p_cpu_usage', 'p_cpu_usage_report', 'p_serverlogs_bootstrap_rpt', 'p_cpu_usage_bootstrap_rpt') and
+                                tablename in ('plainlogs', 'threadinfo', 'serverlogs', 'p_threadinfo', 'p_threadinfo_delta', 'p_serverlogs', 'p_cpu_usage', 'p_cpu_usage_report', 'p_serverlogs_bootstrap_rpt', 'p_cpu_usage_bootstrap_rpt') and
                                 partitiontype = 'range' and
                                 partitionname not in ('10010101', '100101')
                         ) a
@@ -298,6 +298,7 @@ if [ $(date +%u) -eq 7 ]; then
     analyze rootpartition threadinfo;
     analyze rootpartition p_serverlogs;
     analyze rootpartition p_threadinfo;
+    analyze rootpartition p_threadinfo_delta;
     analyze rootpartition p_cpu_usage;
     analyze rootpartition p_cpu_usage_report;
     analyze rootpartition p_serverlogs_bootstrap_rpt;
