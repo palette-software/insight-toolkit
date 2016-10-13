@@ -6,3 +6,6 @@
 
 # Palette Insight Load Control
 * * * * *    /opt/insight-toolkit/loadctrl.sh
+
+# Palette Insight Incremental Load
+* * * * *    /opt/insight-reporting-framework/run_reporting_delta.sh
