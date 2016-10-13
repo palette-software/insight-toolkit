@@ -182,8 +182,7 @@ from (
 			p.partitionschemaname = '$SCHEMA' and
 	        p.tablename in (
 							'p_interactor_session',
-							'p_cpu_usage_agg_report',
-							'p_process_class_agg_report',
+							'p_cpu_usage_agg_report',							
 							'p_cpu_usage_bootstrap_rpt') and
 	        p.parentpartitiontablename is null) parts
 where
