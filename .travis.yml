@@ -37,8 +37,7 @@ script:
   - cp -v ../scripts/* opt/insight-toolkit
   - cp ../insight-toolkit-cron opt/insight-toolkit
   - echo "BUILDING VERSION:$VERSION"
-
-  # Copy the gpfdist ini file and loadtables run script as they needs to be upadted
+ 
   - cp -v ../files/insight-gpfdist.ini etc/supervisord.d  
 
   # build the rpm
