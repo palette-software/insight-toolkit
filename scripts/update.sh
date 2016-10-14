@@ -21,6 +21,7 @@ set -e
     export TWOZEROFIRSTTIME=0
     if [ ! -d "/data/insight-server/uploads/palette" ]; then
         # Steps needed only for 1.x -> 2.x upgrade
+        log "Do 1.x -> 2.x upgrade"
         export LOADTABLES_LOCKFILE=/tmp/PI_ImportTables_prod.flock
         flock -w 600 $LOADTABLES_LOCKFILE /opt/insight-toolkit/2-0-upgrade.sh
         export TWOZEROFIRSTTIME=1
@@ -83,6 +84,7 @@ set -e
     sudo supervisorctl restart insight-services-webui
 
     if [ "$TWOZEROFIRSTTIME" == "1" ]; then
+        log "Post processing 1.x -> 2.x upgrade"
         flock -w 600 $LOADTABLES_LOCKFILE /opt/insight-toolkit/2-0-upgrade-post.sh
     fi
 
