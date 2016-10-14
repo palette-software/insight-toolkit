@@ -79,8 +79,10 @@ set -e
 
     # Now take a big breath and restart ourselves.
     # The problem is if this fails we would never start up again.
+    log "Waiting before WebUI restart"
     sleep 10
     rm -rf $UPDATE_PROGRESS_FILE
+    log "Restart WebUI"
     sudo supervisorctl restart insight-services-webui
 
     if [ "$TWOZEROFIRSTTIME" == "1" ]; then
@@ -88,5 +90,6 @@ set -e
         flock -w 600 $LOADTABLES_LOCKFILE /opt/insight-toolkit/2-0-upgrade-post.sh
     fi
 
+    log "Update end"
 
 ) 863>/tmp/insight-toolkit.flock
