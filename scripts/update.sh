@@ -11,7 +11,12 @@ set -e
     # Note that the same FD needs to be used at the end of the subprocess definition (block).
     # And by default the ulimit -n (the maximum number of open file descriptors) value is
     # 1024, so it's safer to pick a number under 1024.
-	flock -n 863
+    flock -n 863
+
+
+    log () {
+        echo "$(date +"%Y-%m-%d %H:%M:%S") $*"
+    }
 
     export TWOZEROFIRSTTIME=0
     if [ ! -d "/data/insight-server/uploads/palette" ]; then
@@ -23,9 +28,9 @@ set -e
 
     # Steps needed for anything else
 
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Update start"
+    log "Update start"
 
-	export UPDATE_PROGRESS_FILE=/var/log/insight-services/progress.log
+    export UPDATE_PROGRESS_FILE=/var/log/insight-services/progress.log
 
     rm -rf $UPDATE_PROGRESS_FILE
     export PROGRESS=0
@@ -33,42 +38,42 @@ set -e
 
     echo "1,Starting update" > $UPDATE_PROGRESS_FILE
     sudo yum clean all
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Toolkit"
+    log "Updating Palette Insight Toolkit"
     export PROGRESS=10
-	/opt/insight-toolkit/update-insight-toolkit.sh
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Toolkit"
+    /opt/insight-toolkit/update-insight-toolkit.sh
+    log "Updated Palette Insight Toolkit"
 
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Website"
+    log "Updating Palette Insight Website"
     export PROGRESS=30
-	/opt/insight-toolkit/update-insight-website.sh
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Website"
+    /opt/insight-toolkit/update-insight-website.sh
+    log "Updated Palette Insight Website"
 
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Server"
+    log "Updating Palette Insight Server"
     export PROGRESS=50
-	/opt/insight-toolkit/update-insight-server.sh
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Server"
+    /opt/insight-toolkit/update-insight-server.sh
+    log "Updated Palette Insight Server"
 
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Data Model"
+    log "Updating Palette Insight Data Model"
     export PROGRESS=70
     export PROGRESS_RANGE=10
-	/opt/insight-toolkit/update-data-model.sh
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Data Model"
-    
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Agent"
+    /opt/insight-toolkit/update-data-model.sh
+    log "Updated Palette Insight Data Model"
+
+    log "Updating Palette Insight Agent"
     export PROGRESS=80
-	/opt/insight-toolkit/update-insight-agent.sh
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Agent"
-    
-    echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight Reporting Framework"
+    /opt/insight-toolkit/update-insight-agent.sh
+    log "Updated Palette Insight Agent"
+
+    log "Updating Palette Insight Reporting Framework"
     export PROGRESS=90
     export PROGRESS_RANGE=5
-	/opt/insight-toolkit/update-insight-reporting-framework.sh
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight Reporting Framework"
+    /opt/insight-toolkit/update-insight-reporting-framework.sh
+    log "Updated Palette Insight Reporting Framework"
 
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updating Palette Insight GP-Import"
+    log "Updating Palette Insight GP-Import"
     export PROGRESS=95
-	/opt/insight-toolkit/update-insight-gp-import.sh
-	echo "$(date +"%Y-%m-%d %H:%M:%S") Updated Palette Insight GP-Import"
+    /opt/insight-toolkit/update-insight-gp-import.sh
+    log "Updated Palette Insight GP-Import"
     echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" >> $UPDATE_PROGRESS_FILE
 
     # Now take a big breath and restart ourselves.
