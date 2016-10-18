@@ -3,6 +3,31 @@
 DBNAME="palette"
 SCHEMA="palette"
 RETENTION_IN_DAYS=15
+RETENTION_IN_MONTHS=2
+
+drop_old_partitions () {
+  TABLES=$1
+  RETENTION_PERIOD=$2
+
+  psql -tc "select
+                          drop_stmt
+                  from
+                          (
+                          select
+                                  'alter table ' || schemaname || '.' || tablename || ' drop partition \"' || partitionname || '\";' drop_stmt,
+                                  row_number() over (partition by tablename order by partitionname desc) as rn
+                          from pg_partitions t
+                          where
+                                  schemaname = '${SCHEMA}' and
+                                  tablename in (${TABLES}) and
+                                  partitiontype = 'range' and
+                                  partitionname not in ('10010101', '100101')
+                          ) a
+                  where
+                          rn > ${RETENTION_PERIOD}
+                  order by 1
+          " $DBNAME | psql -a $DBNAME 2>&1
+}
 
 log () {
     echo "$1 $(date)"
@@ -117,28 +142,18 @@ EOF
 
 log "End vacuum analyze p_http_requests and p_background_jobs"
 
-log "Start drop old partitions."
+log "Start drop old partitions by day"
 
-psql -tc "select
-                        drop_stmt
-                from
-                        (
-                        select
-                                'alter table ' || schemaname || '.' || tablename || ' drop partition \"' || partitionname || '\";' drop_stmt,
-                                row_number() over (partition by tablename order by partitionname desc) as rn
-                        from pg_partitions t
-                        where
-                                schemaname = '$SCHEMA' and
-                                tablename in ('plainlogs', 'threadinfo', 'serverlogs', 'p_threadinfo', 'p_threadinfo_delta', 'p_serverlogs', 'p_cpu_usage', 'p_cpu_usage_report', 'p_serverlogs_bootstrap_rpt', 'p_cpu_usage_bootstrap_rpt') and
-                                partitiontype = 'range' and
-                                partitionname not in ('10010101', '100101')
-                        ) a
-                where
-                        rn > $RETENTION_IN_DAYS
-                order by 1
-        " $DBNAME | psql -a $DBNAME 2>&1
+drop_old_partitions "'plainlogs', 'threadinfo', 'serverlogs', 'p_threadinfo', 'p_threadinfo_delta', 'p_serverlogs', 'p_cpu_usage', 'p_cpu_usage_report', 'p_serverlogs_bootstrap_rpt'" ${RETENTION_IN_DAYS}
 
-log "End drop old partitions."
+log "End drop old partitions by day"
+
+log "Start drop old partitions by month"
+
+drop_old_partitions "'p_cpu_usage_bootstrap_rpt', 'p_process_class_agg_report'" ${RETENTION_IN_MONTHS}
+
+log "End drop old partitions by month"
+
 
 log "Start vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions"
 
@@ -182,7 +197,7 @@ from (
 			p.partitionschemaname = '$SCHEMA' and
 	        p.tablename in (
 							'p_interactor_session',
-							'p_cpu_usage_agg_report',							
+							'p_cpu_usage_agg_report',
 							'p_cpu_usage_bootstrap_rpt') and
 	        p.parentpartitiontablename is null) parts
 where
