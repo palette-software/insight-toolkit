@@ -304,10 +304,12 @@ if [ $(date +%u) -eq 7 ]; then
     psql $DBNAME 2>&1 <<EOF
     \set ON_ERROR_STOP on
     set search_path = $SCHEMA;
-
+    
+    analyze p_process_classification;
     analyze serverlogs;
     analyze threadinfo;
     analyze plainlogs;
+    analyze p_threadinfo;
     analyze rootpartition plainlogs;
     analyze rootpartition serverlogs;
     analyze rootpartition threadinfo;
