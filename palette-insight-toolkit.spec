@@ -53,7 +53,8 @@ Packager: Palette Developers <developers@palette-software.com>
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 
 %pre
-# noop
+# Create the 'insight' sudoer and passwordless user
+useradd %{serviceuser} || echo "User: %{serviceuser} already exists"
 
 %post
 crontab -u insight /opt/insight-toolkit/insight-toolkit-cron
