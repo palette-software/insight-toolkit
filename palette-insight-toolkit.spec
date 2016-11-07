@@ -53,7 +53,22 @@ Packager: Palette Developers <developers@palette-software.com>
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 
 %pre
-# noop
+# Create the 'insight' sudoer and passwordless user
+useradd %{serviceuser}
+FILE=/etc/sudoers
+TMP_FILE=/tmp/insight-sudoers.tmp
+LINE="insight ALL=(ALL) NOPASSWD:ALL"
+cp -a ${FILE} ${TMP_FILE}
+grep -q "$LINE" "$TMP_FILE" || echo "$LINE" | sudo tee --append "$TMP_FILE"
+# Validate the file that we are going to overwrite /etc/sudoers with
+visudo -cf ${TMP_FILE}
+VISUDO_EXIT_CODE=$?
+if [ ${VISUDO_EXIT_CODE} -ne 0 ]; then
+    echo "Failed to add %{serviceuser} to sudoers!"
+    exit ${VISUDO_EXIT_CODE}
+fi
+# Apply our sudoers file with passwordless insight user
+mv ${TMP_FILE} ${FILE}
 
 %post
 crontab -u insight /opt/insight-toolkit/insight-toolkit-cron
