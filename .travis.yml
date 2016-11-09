@@ -5,7 +5,7 @@ env:
       - DEPLOY_USER=palette-rpm
 
       # travis encrypt DEPLOY_PASSWORD=...
-      - secure: "bpiG25h8I+BgpswIFjvADbHfrZygMFvsge/FhIw4eCbmFFCE1o/02gWJoDmG411IRehjbNjqpTIhulUWHrv43AKWxMUTSMNybfQlZ8v6vp9N8bTI4ShI/DMgK2oHZgKXicZo5eUpreC+y+NhmMgDfcF45bW924ru52WVYueWDpQrlXYmqbFM2Au7mHR0XR2qlf2stFeSs6pGVm/s4QXKXTw0qIV9xjgealCf5Gxt69I3IVdNw7Tqt6NCKbd+hmZI4SWDG5eFYMr6fzNymzjvqoArURlPvkZxNfTeeJn+DL94pjxCJMXV1PXqQWYwg6iPdZoJzoO+jjzUf1egoU3jZvUTVqmCGWGBvR9s9e1e8tVOt6HKZsoXesv8sS1Dbny3SJ1TSB66qFD8qR2qTqenRr3EllInq5KK4mp6yj+YtuXyNxGklDM7sQaIv95LTR9qy5I0sZTJFoJIiEMSZ2R1aO/IVRBCY/3nesKRAByGi1hjhreGArUvWtD+mw13oSs2kFK7P0mWmWv3/XVeWWqODCa4hgsfAmr4evDbGwyPH2XzkIxOXxzLmuNfHAEZvCQ23ciBMpaq9tdNh10ln2zKWR7wPai2KpqNYw/VdG52KjJwvm+aue7p3mdblJzXoPLnx1G0UWG9fh+pun8cvclUFrz1u84GOf4eHeKRpDCDP9I="
+      - secure: "dKSygJzkfEdts0Jm0+0Sisv4c5I7b8DriTkOjViQ93+EXz45rSKxOX45DI7Kw7qPUCrDMEuaNK0PmSr9IMVfTF2LmDxi8vQN8rCnlnAfBTAFpptewJP+OxaxVaY2hteH+UUJ3NlRz7FQHEDjJ3aBQi9Zn0k5yNRS+2GI0dik47KH6zdD2NnI19V0SMCgVsxh2Ko4gF7tutDsApAooZtD7kEN660adduZh2I2buiKuuIO5iXPIUPcyNIknznjHx/eLh6NIdCojFdNmWBzKqCCCYQx139g9WM7Z9z287GlElDDrzL87b5+/+wVYVwxm6zs+1jqOyfy1MlluYPIDMjzFLfDqjDCDFtfIJfvGYQ2MxU3xHAdAgEnkF+3EtlY+wAmDVdmuKmaujoWZmbOOJiKI0Jzk5w0QiGW1AwtQ5ivs/kHhhDUHXCQGgz5ypa4DgdVwifCdLwcRLXHgVdqJnBSaiT8UJTt8H0ZgRJd0OMIeS9Ycq659Qcy+j397SiRHCYUxTDi9kyaKJdV9G3u0ZjzG0dQPUf11czIjVo75Z8/7BiNtQL9m8f76XIQvHSCiNv/3CU3sfJAl4kJDt3SkoxQx4EvCUt7Bd9gMRH0PrEu2LzG2A8EG8eLaCOXU85BgdVKbXbREv9zexzWPMUj8P4arUWor4UgbLq8HQCxFdNY6H0="
 
 # install the RPM package
 addons:
@@ -31,14 +31,14 @@ script:
   - mkdir -p var/log/insight-toolkit
   - mkdir -p var/log/insight-gpfdist
   - mkdir -p var/lib/palette
-  - mkdir -p etc/supervisord.d  
+  - mkdir -p etc/supervisord.d
 
   # Copy the binary
   - cp -v ../scripts/* opt/insight-toolkit
   - cp ../insight-toolkit-cron opt/insight-toolkit
   - echo "BUILDING VERSION:$VERSION"
- 
-  - cp -v ../files/insight-gpfdist.ini etc/supervisord.d  
+
+  - cp -v ../files/insight-gpfdist.ini etc/supervisord.d
 
   # build the rpm
   - rpmbuild -bb --buildroot $(pwd) --define "version $VERSION" --define "buildrelease $TRAVIS_BUILD_NUMBER" --define "_rpmdir $(pwd)/_build" ../palette-insight-toolkit.spec
