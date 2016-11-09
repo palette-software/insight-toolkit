@@ -53,6 +53,8 @@ Packager: Palette Developers <developers@palette-software.com>
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 
 Requires: sudo
+# Required by palette-insight-website and palette-insight-loadtables
+Requires: python35u python35u-pip
 
 %pre
 # Create the 'insight' sudoer and passwordless user
@@ -74,6 +76,10 @@ mv ${TMP_FILE} ${FILE}
 
 %post
 crontab -u insight /opt/insight-toolkit/insight-toolkit-cron
+
+# On CentOS 6 the python3 and pip3 symlinks are not created by default
+ln -s /usr/bin/python3.5 /usr/bin/python3
+ln -s /usr/bin/pip3.5 /usr/bin/pip3
 
 %postun
 # noop
