@@ -52,6 +52,8 @@ Packager: Palette Developers <developers@palette-software.com>
 
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 
+Requires: sudo
+
 %pre
 # Create the 'insight' sudoer and passwordless user
 useradd %{serviceuser}
