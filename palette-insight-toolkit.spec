@@ -107,14 +107,8 @@ Palette Insight Toolkit
 # with "/", then make sure paths with spaces are quoted.
 # /usr/local/bin/palette-insight-server
 /opt/insight-toolkit
-/etc/supervisord.d
-%dir /var/log/insight-gpfdist
 %dir /var/log/insight-toolkit
 %dir /var/lib/palette
-
-# config files can be defined according to this
-# http://www-uxsup.csx.cam.ac.uk/~jw35/docs/rpm_config.html
-#%%config /etc/palette-insight-server/server.config
 
 %changelog
 
