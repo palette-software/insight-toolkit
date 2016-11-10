@@ -57,13 +57,14 @@ Requires: sudo
 Requires: python35u python35u-pip
 
 %pre
-# Create the 'insight' sudoer and passwordless user
+# Create the 'insight' sudoer without tty and passwordless user
 useradd %{serviceuser}
 FILE=/etc/sudoers
 TMP_FILE=/tmp/insight-sudoers.tmp
-LINE="insight ALL=(ALL) NOPASSWD:ALL"
 cp -a ${FILE} ${TMP_FILE}
-grep -q "$LINE" "$TMP_FILE" || echo "$LINE" | sudo tee --append "$TMP_FILE"
+for LINE in "insight ALL=(ALL) NOPASSWD:ALL" "Defaults: insight !requiretty"; do
+    grep -q "$LINE" "$TMP_FILE" || echo "$LINE" | sudo tee --append "$TMP_FILE"
+done
 # Validate the file that we are going to overwrite /etc/sudoers with
 visudo -cf ${TMP_FILE}
 VISUDO_EXIT_CODE=$?
