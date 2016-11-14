@@ -75,6 +75,9 @@ fi
 # Apply our sudoers file with passwordless insight user
 mv ${TMP_FILE} ${FILE}
 
+
+Requires: cronie
+
 %post
 crontab -u insight /opt/insight-toolkit/insight-toolkit-cron
 
@@ -111,4 +114,3 @@ Palette Insight Toolkit
 %dir /var/lib/palette
 
 %changelog
-
