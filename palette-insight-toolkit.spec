@@ -52,7 +52,7 @@ Packager: Palette Developers <developers@palette-software.com>
 
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 
-Requires: sudo
+Requires: sudo cronie
 # Required by palette-insight-website and palette-insight-loadtables
 Requires: python35u python35u-pip
 
@@ -74,9 +74,6 @@ if [ ${VISUDO_EXIT_CODE} -ne 0 ]; then
 fi
 # Apply our sudoers file with passwordless insight user
 mv ${TMP_FILE} ${FILE}
-
-
-Requires: cronie
 
 %post
 crontab -u insight /opt/insight-toolkit/insight-toolkit-cron
