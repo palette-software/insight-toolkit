@@ -55,6 +55,7 @@ Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 Requires: sudo cronie
 # Required by palette-insight-website and palette-insight-loadtables
 Requires: python35u python35u-pip
+Requires: palette-insight-certs
 
 %pre
 # Create the 'insight' sudoer without tty and passwordless user
