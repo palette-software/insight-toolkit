@@ -5,6 +5,56 @@ SCHEMA="palette"
 RETENTION_IN_DAYS=15
 RETENTION_IN_MONTHS=2
 
+analyze_partitions() {
+    TABLES=$1
+    HAS_SUBPART=$2       
+    
+    if [ ${HAS_SUBPART} -eq "1" ]; then
+    
+        DATE_COL_NAME="parentpartitionname"
+    else
+        DATE_COL_NAME="partitionname"
+    fi
+    
+    psql -tc "select
+                        'analyze ' || p.schemaname || '.\"' || p.partitiontablename || '\";'
+                from
+                        pg_partitions p
+                        left outer join pg_stat_operations o on (o.schemaname = p.schemaname and
+                                                                 o.objname = p.partitiontablename and
+                                                                 o.actionname = 'ANALYZE'
+                                                                 )
+                where
+						p.partitionschemaname = '${SCHEMA}' and
+                        p.tablename in (${TABLES}) and
+                        p.partitionlevel = ${HAS_SUBPART} and
+                        o.statime is null and
+                        to_date(p.${DATE_COL_NAME}, 'yyyymmdd') < now()::date
+                " $DBNAME | psql -a $DBNAME 2>&1
+    
+}
+
+delete_old_data() {
+    TABLE=$1
+    ORDER_COLUMN=$2
+            
+    psql $DBNAME -c "delete from ${SCHEMA}.${TABLE}
+                    using
+                        (select p_id
+                        from
+                            (select
+                                p_id,
+                                dense_rank() over (order by ${ORDER_COLUMN}::date desc) rn
+                            from
+                                ${SCHEMA}.${TABLE}) b
+                         where
+                            rn > ${RETENTION_IN_DAYS}
+                        ) s
+                    where
+                        ${TABLE}.p_id = s.p_id"  2>&1
+}
+
+
 drop_old_partitions () {
   TABLES=$1
   RETENTION_PERIOD=$2
@@ -34,18 +84,6 @@ log () {
 }
 
 log "Start maintenance"
-log "Start vacuum analyze pg_catalog tables"
-
-psql -tc "select 'VACUUM ANALYZE ' || b.nspname || '.' || relname || ';'
-from
-        pg_class a,
-        pg_namespace b
-where
-        a.relnamespace = b.oid and
-        b.nspname in ('pg_catalog') and
-        a.relkind='r'" $DBNAME | psql -a $DBNAME 2>&1
-
-log "End vacuum analyze pg_catalog tables"
 
 log "Start set connection limit for readonly to 0"
 psql $DBNAME -c "alter role readonly with CONNECTION LIMIT 0" 2>&1
@@ -64,59 +102,9 @@ log "End terminate readonly connections"
 
 log "Start deleting streaming tables"
 
-psql $DBNAME 2>&1 <<EOF
-\set ON_ERROR_STOP on
-set search_path = $SCHEMA;
-
-delete from background_jobs
-using
-    (select p_id
-    from
-        (select
-            p_id,
-            dense_rank() over (order by created_at::date desc) rn
-        from
-            background_jobs) b
-     where
-        rn > $RETENTION_IN_DAYS
-    ) s
-where
-    background_jobs.p_id = s.p_id
-;
-
-delete from http_requests
-using
-    (select p_id
-    from
-        (select
-            p_id,
-            dense_rank() over (order by created_at::date desc) rn
-        from
-            http_requests) b
-     where
-        rn > $RETENTION_IN_DAYS
-    ) s
-where
-    http_requests.p_id = s.p_id
-;
-
-delete from countersamples
-using
-    (select p_id
-    from
-        (select
-            p_id,
-            dense_rank() over (order by timestamp::date desc) rn
-        from
-            countersamples) b
-     where
-        rn > $RETENTION_IN_DAYS
-    ) s
-where
-    countersamples.p_id = s.p_id
-;
-
-EOF
+delete_old_data "background_jobs" "created_at"
+delete_old_data "http_requests" "created_at"
+delete_old_data "countersamples" "timestamp"
 
 log "End deleting streaming tables"
 
@@ -131,7 +119,6 @@ psql -tc "select 'vacuum analyze ' || schemaname || '.' || tablename || ';'
 log "End vacuum analyze history tables"
 
 log "Start vacuum analyze p_http_requests and p_background_jobs"
-
 
 psql $DBNAME 2>&1 <<EOF
 \set ON_ERROR_STOP on
@@ -154,81 +141,14 @@ drop_old_partitions "'p_cpu_usage_bootstrap_rpt', 'p_process_class_agg_report'" 
 
 log "End drop old partitions by month"
 
-
-log "Start vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions"
-
-psql -tc "select
-                                case when p.tablename = 'p_serverlogs_bootstrap_rpt' then 'vacuum analyze ' else 'vacuum ' end || p.schemaname || '.\"' || p.partitiontablename || '\";'
-                        from
-                                pg_partitions p
-                                left outer join pg_stat_operations o on (o.schemaname = p.schemaname and
-                                                                                                                 o.objname = p.partitiontablename and
-                                                                                                                 o.actionname = 'VACUUM'
-                                                                                                                 )
-                        where
-								p.partitionschemaname = '$SCHEMA' and
-                                p.tablename in ('p_serverlogs',
-                                                                'p_cpu_usage',
-                                                                'p_cpu_usage_report',
-																'p_serverlogs_bootstrap_rpt'
-                                                                ) and
-                                p.parentpartitiontablename is null and
-                                o.statime is null and
-                                to_date(p.partitionname, 'yyyymmdd') < now()::date
-                " $DBNAME | psql -a $DBNAME 2>&1
-
-
-log "Start vacuum newly partitioned tables by new partitions"
-
-psql -tc "
-select
-	vac_command
-from (
-	select
-	        'vacuum ' || p.schemaname || '.\"' || p.partitiontablename || '\";' vac_command,
-			row_number() over (partition by p.tablename order by partitionname desc) rn
-	from
-	        pg_partitions p
-	        left outer join pg_stat_operations o on (o.schemaname = p.schemaname and
-                                                     o.objname = p.partitiontablename and
-                                                     o.actionname = 'VACUUM'
-                                                     )
-	where
-			p.partitionschemaname = '$SCHEMA' and
-	        p.tablename in (
-							'p_interactor_session',
-							'p_cpu_usage_agg_report',
-							'p_cpu_usage_bootstrap_rpt') and
-	        p.parentpartitiontablename is null) parts
-where
-	parts.rn = 1
-                " $DBNAME | psql -a $DBNAME 2>&1
-
-log "End vacuum newly partitioned tables by new partitions"
-log "End vacuum (vacuum analyze in the case of p_serverlogs_bootstrap_rpt) tables by new partitions"
-
-
 log "Start analyze tables by new partitions"
 
-psql -tc "select
-                                'analyze ' || p.schemaname || '.\"' || p.partitiontablename || '\";'
-                from
-                        pg_partitions p
-                        left outer join pg_stat_operations o on (o.schemaname = p.schemaname and
-                                                                                                         o.objname = p.partitiontablename and
-                                                                                                         o.actionname = 'ANALYZE'
-                                                                                                         )
-                where
-						p.partitionschemaname = '$SCHEMA' and
-                        p.tablename in ('p_serverlogs',
-                                                        'p_cpu_usage',
-                                                        'p_cpu_usage_report') and
-                        p.parentpartitiontablename is not null and
-                        o.statime is null and
-                        to_date(p.parentpartitionname, 'yyyymmdd') < now()::date
-                " $DBNAME | psql -a $DBNAME 2>&1
+analyze_partitions "'p_serverlogs', 'p_cpu_usage', 'p_cpu_usage_report'" "1"
+analyze_partitions "'p_serverlogs_bootstrap_rpt'" "0"
+                
+log "End analyze tables by new partitions"
 
-log "Start analyze newly partitioned tables by new partitions"
+log "Start analyze tables by last partitions"
 
 psql -tc "
 select
@@ -239,10 +159,6 @@ from (
 			row_number() over (partition by p.tablename order by partitionname desc) rn
 	from
 	        pg_partitions p
-	        left outer join pg_stat_operations o on (o.schemaname = p.schemaname and
-                                                     o.objname = p.partitiontablename and
-                                                     o.actionname = 'ANALYZE'
-                                                     )
 	where
 			p.partitionschemaname = '$SCHEMA' and
 	        p.tablename in (
@@ -255,9 +171,7 @@ where
 	parts.rn = 1
                 " $DBNAME | psql -a $DBNAME 2>&1
 
-log "End analyze newly partitioned tables by new partitions"
-
-log "End analyze tables by new partitions"
+log "End analyze tables by last partitions"
 
 log "Start set connection limit for readonly to -1"
 psql $DBNAME -c "alter role readonly with CONNECTION LIMIT -1" 2>&1
@@ -301,6 +215,21 @@ if [ $(date +%u) -eq 7 ]; then
 
     log "Start weekly analyze"
 
+    log "Start vacuum analyze pg_catalog tables"
+
+    psql -tc "select 'VACUUM ANALYZE ' || b.nspname || '.' || relname || ';'
+    from
+            pg_class a,
+            pg_namespace b
+    where
+            a.relnamespace = b.oid and
+            b.nspname in ('pg_catalog') and
+            a.relkind='r'" $DBNAME | psql -a $DBNAME 2>&1
+
+    log "End vacuum analyze pg_catalog tables"
+    
+    
+    
     psql $DBNAME 2>&1 <<EOF
     \set ON_ERROR_STOP on
     set search_path = $SCHEMA;
@@ -309,12 +238,11 @@ if [ $(date +%u) -eq 7 ]; then
     analyze serverlogs;
     analyze threadinfo;
     analyze plainlogs;
-    analyze p_threadinfo;
+    analyze p_threadinfo_delta;
     analyze rootpartition plainlogs;
     analyze rootpartition serverlogs;
     analyze rootpartition threadinfo;
-    analyze rootpartition p_serverlogs;
-    analyze rootpartition p_threadinfo;
+    analyze rootpartition p_serverlogs;    
     analyze rootpartition p_threadinfo_delta;
     analyze rootpartition p_cpu_usage;
     analyze rootpartition p_cpu_usage_report;
