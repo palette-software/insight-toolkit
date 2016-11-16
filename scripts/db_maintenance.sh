@@ -124,7 +124,7 @@ psql $DBNAME 2>&1 <<EOF
 \set ON_ERROR_STOP on
 set search_path = $SCHEMA;
 vacuum analyze $SCHEMA.p_http_requests;
-vacuum analyze $SCHEMA.p_background_jobs;
+vacuum $SCHEMA.p_background_jobs;
 EOF
 
 log "End vacuum analyze p_http_requests and p_background_jobs"
@@ -144,7 +144,6 @@ log "End drop old partitions by month"
 log "Start analyze tables by new partitions"
 
 analyze_partitions "'p_serverlogs', 'p_cpu_usage', 'p_cpu_usage_report'" "1"
-analyze_partitions "'p_serverlogs_bootstrap_rpt'" "0"
                 
 log "End analyze tables by new partitions"
 
@@ -161,11 +160,7 @@ from (
 	        pg_partitions p
 	where
 			p.partitionschemaname = '$SCHEMA' and
-	        p.tablename in (
-							'p_interactor_session',
-							'p_cpu_usage_agg_report',
-							'p_process_class_agg_report',
-							'p_cpu_usage_bootstrap_rpt') and
+	        p.tablename in ('p_interactor_session') and
 	        p.parentpartitiontablename is null) parts
 where
 	parts.rn = 1
@@ -238,19 +233,17 @@ if [ $(date +%u) -eq 7 ]; then
     analyze serverlogs;
     analyze threadinfo;
     analyze plainlogs;
+    analyze p_threadinfo;
     analyze p_threadinfo_delta;
     analyze rootpartition plainlogs;
     analyze rootpartition serverlogs;
     analyze rootpartition threadinfo;
     analyze rootpartition p_serverlogs;    
+    analyze rootpartition p_threadinfo;
     analyze rootpartition p_threadinfo_delta;
     analyze rootpartition p_cpu_usage;
     analyze rootpartition p_cpu_usage_report;
-    analyze rootpartition p_serverlogs_bootstrap_rpt;
-    analyze rootpartition p_cpu_usage_bootstrap_rpt;
-    analyze rootpartition p_interactor_session;
-    analyze rootpartition p_cpu_usage_agg_report;
-    analyze rootpartition p_process_class_agg_report;
+    analyze rootpartition p_interactor_session;    
 
 EOF
 
