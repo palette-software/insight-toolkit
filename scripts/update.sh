@@ -32,7 +32,11 @@ set -e
     sudo yum clean all
     echo "25,Yum clean completed" >> $UPDATE_PROGRESS_FILE
 
-    sudo yum update -y
+    # Update the base package...
+    sudo yum install -y palette-insight
+    echo "40,Dependencies updated" >> $UPDATE_PROGRESS_FILE
+    # ... and all of its dependencies
+    LC_ALL=C repoquery --requires palette-insight | xargs sudo yum install -y
 
     echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" >> $UPDATE_PROGRESS_FILE
 
