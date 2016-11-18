@@ -22,7 +22,9 @@ set -e
 
     log "Update start"
 
-    export UPDATE_PROGRESS_FILE=/var/log/insight-services/progress.log
+    # Normally this folder already exists, but make sure
+    mkdir -p /var/log/palette-insight-website
+    export UPDATE_PROGRESS_FILE=/var/log/palette-insight-website/progress.log
 
     rm -rf $UPDATE_PROGRESS_FILE
     export PROGRESS=0
