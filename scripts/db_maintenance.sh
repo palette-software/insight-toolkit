@@ -230,6 +230,8 @@ if [ $(date +%u) -eq 7 ]; then
     set search_path = $SCHEMA;
     
     analyze p_process_classification;
+    analyze http_requests;
+    analyze background_jobs;
     analyze serverlogs;
     analyze threadinfo;
     analyze plainlogs;
