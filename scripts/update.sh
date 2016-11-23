@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# Stop execution on the first error. Even if the error
-# is within the subshell (the block within parentheses).
-set -e
-
 (
     # The number chosen here is totally arbitrary. It is a file descriptor (FD).
     # The only problem that can happen if someone else tries to flock on the same FD.
@@ -26,20 +22,42 @@ set -e
     mkdir -p /var/log/palette-insight-website
     export UPDATE_PROGRESS_FILE=/var/log/palette-insight-website/progress.log
 
-    rm -rf $UPDATE_PROGRESS_FILE
+    rm -f $UPDATE_PROGRESS_FILE
     export PROGRESS=0
     export PROGRESS_RANGE=20
 
-    echo "1,Starting update" > $UPDATE_PROGRESS_FILE
+    echo "1,$(date +"%Y-%m-%d %H:%M:%S") Starting update" > $UPDATE_PROGRESS_FILE
     sudo yum clean all
     echo "25,Yum clean completed" >> $UPDATE_PROGRESS_FILE
 
     # Update the base package...
     sudo yum install -y palette-insight
-    echo "40,Dependencies updated" >> $UPDATE_PROGRESS_FILE
+    PROGRESS=40
+    echo "${PROGRESS},Base package (palette-insight) updated" >> $UPDATE_PROGRESS_FILE
     # ... and all of its dependencies
-    rpm -qa palette* --qf "%{name}\n" | xargs sudo yum install -y && \
-    echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" | sudo tee --append $UPDATE_PROGRESS_FILE
+    export PALETTE_PACKAGES=$(rpm -qa palette* --qf "%{name}\n")
+    export PACKAGE_NUM=$(echo "$PALETTE_PACKAGES" | wc -l)
+    export INCREMENT=$((60 / $PACKAGE_NUM))
+
+    for PPACKAGE in $PALETTE_PACKAGES
+    do
+        PROGRESS=$((PROGRESS + INCREMENT))
+        echo -n "${PROGRESS},Updating ${PPACKAGE}... " >> $UPDATE_PROGRESS_FILE
+        sudo yum install -y ${PPACKAGE}
+        export EXIT_CODE=$?
+        if [ $EXIT_CODE -ne 0 ]; then
+            echo "failed" >> $UPDATE_PROGRESS_FILE
+            # Mark the update as a failure, but update all the packages we can
+            export UPDATE_FAILED=true
+        fi
+        echo "ok" >> $UPDATE_PROGRESS_FILE
+    done
+
+    if [ -z $UPDATE_FAILED ]; then
+        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" | sudo tee --append $UPDATE_PROGRESS_FILE
+    else
+        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Update failed due to failing packages!" | sudo tee --append $UPDATE_PROGRESS_FILE
+    fi
 
     log "Update end"
 
