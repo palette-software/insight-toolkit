@@ -5,7 +5,7 @@
 */10 * * * * /opt/insight-sanity-check/sanity-check.sh
 
 # Palette Insight Load Control
-1 * * * *    /opt/insight-toolkit/loadctrl.sh
+1 * * * *    /opt/insight-reporting-framework/run_reporting.sh
 
 # Palette Insight Incremental Load
 * * * * *    /opt/insight-reporting-framework/run_reporting_delta.sh
