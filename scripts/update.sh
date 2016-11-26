@@ -49,6 +49,7 @@
             echo "failed" >> $UPDATE_PROGRESS_FILE
             # Mark the update as a failure, but update all the packages we can
             export UPDATE_FAILED=true
+            continue
         fi
         echo "ok" >> $UPDATE_PROGRESS_FILE
     done
