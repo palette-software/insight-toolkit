@@ -28,16 +28,15 @@
 
     echo "1,$(date +"%Y-%m-%d %H:%M:%S") Starting update" > $UPDATE_PROGRESS_FILE
     sudo yum clean all
-    echo "25,Yum clean completed" >> $UPDATE_PROGRESS_FILE
+    PROGRESS=30
+    echo "${PROGRESS},Collecting palette packages" >> $UPDATE_PROGRESS_FILE
 
-    # Update the base package...
-    sudo yum install -y palette-insight
-    PROGRESS=40
-    echo "${PROGRESS},Base package (palette-insight) updated" >> $UPDATE_PROGRESS_FILE
-    # ... and all of its dependencies
-    export PALETTE_PACKAGES=$(rpm -qa palette* --qf "%{name}\n")
+    # Collect the palette packages, but make sure 'palette-insight' is the last one in the list
+    export PALETTE_PACKAGES=$(rpm -qa palette* --qf "%{name}\n" | grep -v "^palette-insight$")
+    # Add 'palette-insight' to the end of the list
+    export PALETTE_PACKAGES+=$'\npalette-insight'
     export PACKAGE_NUM=$(echo "$PALETTE_PACKAGES" | wc -l)
-    export INCREMENT=$((60 / $PACKAGE_NUM))
+    export INCREMENT=$(((100 - $PROGRESS) / $PACKAGE_NUM))
 
     for PPACKAGE in $PALETTE_PACKAGES
     do
@@ -55,9 +54,9 @@
     done
 
     if [ -z $UPDATE_FAILED ]; then
-        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" | sudo tee --append $UPDATE_PROGRESS_FILE
+        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" >> $UPDATE_PROGRESS_FILE
     else
-        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Update failed due to failing packages!" | sudo tee --append $UPDATE_PROGRESS_FILE
+        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Update failed due to failing packages!" >> $UPDATE_PROGRESS_FILE
     fi
 
     log "Update end"
