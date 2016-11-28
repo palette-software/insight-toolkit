@@ -31,6 +31,16 @@
     export PROGRESS_RANGE=20
 
     echo "1,$(date +"%Y-%m-%d %H:%M:%S") Starting update" > $UPDATE_PROGRESS_FILE
+
+    # Workaround for the python-PSI problem (Greenplum requires python-PSI RPM package), but our
+    # machines deployed earlier by Ansible have this python-PSI installed by pip, and it makes
+    # python-PSI RPM install fail.
+    sudo yum install -y python-PSI
+    if [ $? -eq 1 ]; then
+        sudo mv /usr/lib64/python2.6/site-packages/PSI-0.3b2-py2.6.egg-info /usr/lib64/python2.6/site-packages/PSI-0.3b2-py2.6.egg-info.backup
+        sudo yum install -y python-PSI
+    fi
+
     sudo yum clean all
     PROGRESS=30
     progress "Collecting palette packages"
