@@ -14,6 +14,10 @@
         echo "$(date +"%Y-%m-%d %H:%M:%S") $*"
     }
 
+    progress() {
+        echo "${PROGRESS},$*" >> $UPDATE_PROGRESS_FILE
+    }
+
     # Steps needed for anything else
 
     log "Update start"
@@ -27,9 +31,19 @@
     export PROGRESS_RANGE=20
 
     echo "1,$(date +"%Y-%m-%d %H:%M:%S") Starting update" > $UPDATE_PROGRESS_FILE
+
+    # Workaround for the python-PSI problem (Greenplum requires python-PSI RPM package), but our
+    # machines deployed earlier by Ansible have this python-PSI installed by pip, and it makes
+    # python-PSI RPM install fail.
+    sudo yum install -y python-PSI
+    if [ $? -eq 1 ]; then
+        sudo mv /usr/lib64/python2.6/site-packages/PSI-0.3b2-py2.6.egg-info /usr/lib64/python2.6/site-packages/PSI-0.3b2-py2.6.egg-info.backup
+        sudo yum install -y python-PSI
+    fi
+
     sudo yum clean all
     PROGRESS=30
-    echo "${PROGRESS},Collecting palette packages" >> $UPDATE_PROGRESS_FILE
+    progress "Collecting palette packages"
 
     # Collect the palette packages, but make sure 'palette-insight' is the last one in the list
     export PALETTE_PACKAGES=$(rpm -qa palette* --qf "%{name}\n" | grep -v "^palette-insight$")
@@ -53,10 +67,11 @@
         echo "ok" >> $UPDATE_PROGRESS_FILE
     done
 
+    PROGRESS=100
     if [ -z $UPDATE_FAILED ]; then
-        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" >> $UPDATE_PROGRESS_FILE
+        progress "$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update"
     else
-        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Update failed due to failing packages!" >> $UPDATE_PROGRESS_FILE
+        progress "$(date +"%Y-%m-%d %H:%M:%S") Update failed due to failing packages!"
     fi
 
     log "Update end"
