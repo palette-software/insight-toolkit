@@ -55,9 +55,9 @@
     done
 
     if [ -z $UPDATE_FAILED ]; then
-        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" | sudo tee --append $UPDATE_PROGRESS_FILE
+        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" >> $UPDATE_PROGRESS_FILE
     else
-        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Update failed due to failing packages!" | sudo tee --append $UPDATE_PROGRESS_FILE
+        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Update failed due to failing packages!" >> $UPDATE_PROGRESS_FILE
     fi
 
     log "Update end"
