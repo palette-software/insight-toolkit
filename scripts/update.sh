@@ -14,6 +14,10 @@
         echo "$(date +"%Y-%m-%d %H:%M:%S") $*"
     }
 
+    progress() {
+        echo "${PROGRESS},$*" >> $UPDATE_PROGRESS_FILE
+    }
+
     # Steps needed for anything else
 
     log "Update start"
@@ -29,7 +33,7 @@
     echo "1,$(date +"%Y-%m-%d %H:%M:%S") Starting update" > $UPDATE_PROGRESS_FILE
     sudo yum clean all
     PROGRESS=30
-    echo "${PROGRESS},Collecting palette packages" >> $UPDATE_PROGRESS_FILE
+    progress "Collecting palette packages"
 
     # Collect the palette packages, but make sure 'palette-insight' is the last one in the list
     export PALETTE_PACKAGES=$(rpm -qa palette* --qf "%{name}\n" | grep -v "^palette-insight$")
@@ -53,10 +57,11 @@
         echo "ok" >> $UPDATE_PROGRESS_FILE
     done
 
+    PROGRESS=100
     if [ -z $UPDATE_FAILED ]; then
-        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update" >> $UPDATE_PROGRESS_FILE
+        progress "$(date +"%Y-%m-%d %H:%M:%S") Successfully finished update"
     else
-        echo "100,$(date +"%Y-%m-%d %H:%M:%S") Update failed due to failing packages!" >> $UPDATE_PROGRESS_FILE
+        progress "$(date +"%Y-%m-%d %H:%M:%S") Update failed due to failing packages!"
     fi
 
     log "Update end"
