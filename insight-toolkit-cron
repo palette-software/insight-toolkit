@@ -1,11 +1,11 @@
 # Palette Insight Load Tables
-* * * * *    /opt/insight-gp-import/run_gp_import.sh
+* * * * *   /opt/insight-gp-import/run_gp_import.sh
 
 # Palette Insight Sanity Checks
 * */1 * * * /opt/insight-sanity-check/sanity-check.sh
 
 # Palette Insight Load Control
-1 * * * *    /opt/insight-reporting-framework/run_reporting.sh
+1 * * * *   /opt/insight-reporting-framework/run_reporting.sh
 
 # Palette Insight Incremental Load
-* * * * *    /opt/insight-reporting-framework/run_reporting_delta.sh
+* * * * *   /opt/insight-reporting-framework/run_reporting_delta.sh
