@@ -2,7 +2,7 @@
 * * * * *   /opt/insight-gp-import/run_gp_import.sh
 
 # Palette Insight Sanity Checks
-* */1 * * * /opt/insight-sanity-check/sanity-check.sh
+44 * * * * /opt/insight-sanity-check/sanity-check.sh
 
 # Palette Insight Load Control
 1 * * * *   /opt/insight-reporting-framework/run_reporting.sh
