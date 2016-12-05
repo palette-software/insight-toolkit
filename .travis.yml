@@ -37,7 +37,7 @@ script:
   - echo "BUILDING VERSION:$VERSION"
 
   # build the rpm
-  - rpmbuild -bb --buildroot $(pwd) --define "version $VERSION" --define "buildrelease $TRAVIS_BUILD_NUMBER" --define "_rpmdir $(pwd)/_build" ../palette-insight-toolkit.spec
+  - rpmbuild -bb --buildroot $(pwd) --define "version $VERSION" --define "buildrelease 1" --define "_rpmdir $(pwd)/_build" ../palette-insight-toolkit.spec
   - cd ..
 
 deploy:
