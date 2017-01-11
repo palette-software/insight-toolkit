@@ -43,4 +43,4 @@ Palette Insight Toolkit is licensed under the GNU GPLv3 license. For professiona
 
 **TODO: Clarify support part!**
 
-Any bugs discovered should be filed in the [Palette Insight Toolkit Git issue tracker](https://github.com/palette-software/insight-reporting-framework/issues) or contribution is more than welcome.
+Any bugs discovered should be filed in the [Palette Insight Toolkit Git issue tracker](https://github.com/palette-software/insight-toolkit/issues) or contribution is more than welcome.
