@@ -1,6 +1,46 @@
-[![Build Status](https://travis-ci.com/palette-software/insight-toolkit.svg?token=qWG5FJDvsjLrsJpXgxSJ&branch=master)](https://travis-ci.com/palette-software/insight-toolkit)
+# Palette Insight Toolkit
 
-# Insight toolkit
-Here you can find some essential scripts that can update each and every Insight components.
+[Palette Insight]: https://github.com/palette-software/palette-insight
 
-The basic idea is that the Insight Servers are set up via Ansible, but once the Insight Server is acquired by a customer who only allows on-premise solutions, basically those customers can get updates only via these scripts.
+## What is Palette Insight Toolkit?
+
+This repository contains various helper scripts which are essential for running
+and updating the [Palette Insight] software.
+
+## How do I set up Palette Insight Toolkit?
+
+### Packaging
+
+To build the package you may use the [create_rpm.sh](create_rpm.sh) script:
+
+```bash
+export VERSION=v2.0.123
+
+./create_rpm.sh
+```
+
+### Installation
+
+The most convenient is to build the RPM package and install it using either yum or rpm.
+It does require and install the other necessary components and services.
+
+The following process is executed by the installer:
+
+- the `/var/log/insight-toolkit` directory is created
+- the `/var/lib/palette` directory is created
+- the files from the `scripts` directory are copied to `/opt/insight-toolkit`
+- creates the `insight` sudoer without tty and passwordless user
+- installs the [insight-toolkit-cron](insight-toolkit-cron) crontab file for `insight` user
+- makes sure that the `python3` and `pip3` executables exist
+
+## How can I test-drive Palette Insight Toolkit?
+
+You may execute the files in the script directory.
+
+## Is Palette Insight Toolkit supported?
+
+Palette Insight Toolkit is licensed under the GNU GPLv3 license. For professional support please contact developers@palette-software.com
+
+**TODO: Clarify support part!**
+
+Any bugs discovered should be filed in the [Palette Insight Toolkit Git issue tracker](https://github.com/palette-software/insight-reporting-framework/issues) or contribution is more than welcome.
