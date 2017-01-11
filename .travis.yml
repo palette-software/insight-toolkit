@@ -22,23 +22,7 @@ before_script:
 
 script:
   - export VERSION=v2.0.$TRAVIS_BUILD_NUMBER
-  - mkdir -p rpm-build
-  - cd rpm-build
-  - mkdir -p _build
-
-  # Create directories
-  - mkdir -p opt/insight-toolkit
-  - mkdir -p var/log/insight-toolkit
-  - mkdir -p var/lib/palette
-
-  # Copy the binary
-  - cp -v ../scripts/* opt/insight-toolkit
-  - cp ../insight-toolkit-cron opt/insight-toolkit
-  - echo "BUILDING VERSION:$VERSION"
-
-  # build the rpm
-  - rpmbuild -bb --buildroot $(pwd) --define "version $VERSION" --define "buildrelease 1" --define "_rpmdir $(pwd)/_build" ../palette-insight-toolkit.spec
-  - cd ..
+  - ./create_rpm.sh
 
 deploy:
   provider: script
