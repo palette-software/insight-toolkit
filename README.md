@@ -1,6 +1,9 @@
 # Palette Insight Toolkit
 
 [Palette Insight]: https://github.com/palette-software/palette-insight
+[LoadTables]:      https://github.com/palette-software/insight-gp-import
+[Reporting]:       https://github.com/palette-software/insight-reporting-framework
+
 
 ## What is Palette Insight Toolkit?
 
@@ -31,6 +34,7 @@ The following process is executed by the installer:
 - the files from the `scripts` directory are copied to `/opt/insight-toolkit`
 - creates the `insight` sudoer without tty and passwordless user
 - installs the [insight-toolkit-cron](insight-toolkit-cron) crontab file for `insight` user
+  - it schedules the periodical execution of [LoadTables] and [Reporting]
 - makes sure that the `python3` and `pip3` executables exist
 
 ## How can I test-drive Palette Insight Toolkit?
