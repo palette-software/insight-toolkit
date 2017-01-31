@@ -47,8 +47,6 @@ You may execute the files in the script directory.
 
 ## Is Palette Insight Toolkit supported?
 
-Palette Insight Toolkit is licensed under the GNU GPLv3 license. For professional support please contact developers@palette-software.com
-
-**TODO: Clarify support part!**
+Palette Insight Toolkit is licensed under the GNU GPL v3 license. For professional support please contact developers@palette-software.com
 
 Any bugs discovered should be filed in the [Palette Insight Toolkit Git issue tracker](https://github.com/palette-software/insight-toolkit/issues) or contribution is more than welcome.
