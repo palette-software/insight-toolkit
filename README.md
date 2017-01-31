@@ -1,3 +1,7 @@
+# Palette Insight Architecture
+
+![Palette Insight Architecture](https://github.com/palette-software/palette-insight/blob/master/insight-system-diagram.png?raw=true)
+
 # Palette Insight Toolkit
 
 [Palette Insight]: https://github.com/palette-software/palette-insight
