@@ -4,8 +4,8 @@ env:
       - DEPLOY_PATH=/var/palette-rpm-repo
       - DEPLOY_USER=palette-rpm
 
-      # travis encrypt DEPLOY_PASSWORD=...
-      - secure: "dKSygJzkfEdts0Jm0+0Sisv4c5I7b8DriTkOjViQ93+EXz45rSKxOX45DI7Kw7qPUCrDMEuaNK0PmSr9IMVfTF2LmDxi8vQN8rCnlnAfBTAFpptewJP+OxaxVaY2hteH+UUJ3NlRz7FQHEDjJ3aBQi9Zn0k5yNRS+2GI0dik47KH6zdD2NnI19V0SMCgVsxh2Ko4gF7tutDsApAooZtD7kEN660adduZh2I2buiKuuIO5iXPIUPcyNIknznjHx/eLh6NIdCojFdNmWBzKqCCCYQx139g9WM7Z9z287GlElDDrzL87b5+/+wVYVwxm6zs+1jqOyfy1MlluYPIDMjzFLfDqjDCDFtfIJfvGYQ2MxU3xHAdAgEnkF+3EtlY+wAmDVdmuKmaujoWZmbOOJiKI0Jzk5w0QiGW1AwtQ5ivs/kHhhDUHXCQGgz5ypa4DgdVwifCdLwcRLXHgVdqJnBSaiT8UJTt8H0ZgRJd0OMIeS9Ycq659Qcy+j397SiRHCYUxTDi9kyaKJdV9G3u0ZjzG0dQPUf11czIjVo75Z8/7BiNtQL9m8f76XIQvHSCiNv/3CU3sfJAl4kJDt3SkoxQx4EvCUt7Bd9gMRH0PrEu2LzG2A8EG8eLaCOXU85BgdVKbXbREv9zexzWPMUj8P4arUWor4UgbLq8HQCxFdNY6H0="
+      # travis encrypt DEPLOY_PASS=...
+      - secure: "aooGC1HgcZRM+Iz33ANFk0K7EdY6Ed2NVZB6XHRtEoB6EShtFv5IA6FigBfLhaTXRnjJKKHNeTLqtZIsUyNtvZDpshcLno0ZS4mr69urYBm9jxhquXcs1FXZEHDL4p8QjbddMxbwxQsf5Ros9LTI1izBk4Y/ZtIqcqkzCxkt6hOJ0b08QikOPtxtMUFsB16asozuMiY/SDXauGRQghJLFL822K7TuMur9teZXuURra17LkIPszuFCTyyP513x2gCqqTa4aWDdhZSAWLXCl4uN6RSBei/9amUVrTo7Kz4Toa3Gig1BIp534FNannjTFllZTGSsgRque/AJtKV5h2flbab/gYrKS3dVoiNmX8X86cnXnsSD7NMaw1RFvJ5m5F62Wi0AP7lkfDF9TNxOpQR8IiCck0nNYeUfYgIfKxmTZYlgeZ//vkXLOmb4TcgTfUWEIDHQlOo5zkutviAqNSUqejYArsmM/7tW7NbZeK0T+o9Em21mmSABKEXX4I+lOmVyhzqlbxYlRNDL6PNitRATkqawZEiBL9tcerWGHUiv354yuTfH8mfY9XHdepdcweWPuwjXVs+cpRtP8K+a1W1oHDOezEoWeTt46hV74r0Lt3/DtUn++Q1h2rJM8rfXCQOvoTL3d7+/lb463lui7uolcEkJMPwWdfZYOfZ+69Kb8s="
 
 # install the RPM package
 addons:
@@ -21,7 +21,7 @@ before_script:
   - echo "==== Setting ${BUILD_TAG} as version ===="
 
 script:
-  - export VERSION=v2.0.$TRAVIS_BUILD_NUMBER
+  - export VERSION=v2.1.$TRAVIS_BUILD_NUMBER
   - ./create_rpm.sh
 
 deploy:
