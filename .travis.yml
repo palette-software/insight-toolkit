@@ -1,6 +1,6 @@
 env:
   global:
-      - DEPLOY_HOST=rpm.palette-software.com
+      - DEPLOY_HOST=palette-rpm.brilliant-data.net
       - DEPLOY_PATH=/var/palette-rpm-repo
       - DEPLOY_USER=palette-rpm
 
