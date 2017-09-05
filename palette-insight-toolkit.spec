@@ -1,5 +1,5 @@
 %define serviceuser insight
-%define servicehome /etc/palette-insight-server
+%define servicehome /var/lib/insight
 
 
 # Disable the stupid stuff rpm distros include in the build process by default:
@@ -59,7 +59,7 @@ Requires: palette-insight-certs
 
 %pre
 # Create the 'insight' sudoer without tty and passwordless user
-useradd %{serviceuser}
+useradd -d %{servicehome} %{serviceuser}
 FILE=/etc/sudoers
 TMP_FILE=/tmp/insight-sudoers.tmp
 cp -a ${FILE} ${TMP_FILE}
