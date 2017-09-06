@@ -59,7 +59,14 @@ Requires: palette-insight-certs
 
 %pre
 # Create the 'insight' sudoer without tty and passwordless user
+# Set Selinux to permissive mode to enable creating home directory under /var/lib, otherwise
+# the created home folder would be owned by root and the skeleton files would be missing
+SELINUX_STATE=`getenforce`
+setenforce 0
 useradd -d %{servicehome} %{serviceuser}
+# Revert to original Selinux state
+setenforce ${SELINUX_STATE}
+
 FILE=/etc/sudoers
 TMP_FILE=/tmp/insight-sudoers.tmp
 cp -a ${FILE} ${TMP_FILE}
